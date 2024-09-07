@@ -4,6 +4,11 @@ App settings as JSON format stored in file and available via read-by-key and wri
 
 Aims a tiny settings manager with reasonably few dependencies.
 
+[![crates.io](https://img.shields.io/crates/v/app-json-settings?label=latest)](https://crates.io/crates/app-json-settings)
+[![Documentation](https://docs.rs/app-json-settings/badge.svg?version=latest)](https://docs.rs/app-json-settings/latest)
+[![License](https://img.shields.io/github/license/nabbisen/app-json-settings-rs)](https://github.com/nabbisen/app-json-settings-rs/blob/main/LICENSE)
+[![Dependency Status](https://deps.rs/crate/app-json-settings/latest/status.svg)](https://deps.rs/crate/app-json-settings)
+
 ## Examples
 
 ### Rust - as Tauri backend

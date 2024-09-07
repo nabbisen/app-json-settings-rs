@@ -1,10 +1,14 @@
 #[cfg(test)]
 mod tests {
-    use crate::default_filepath;
+    use crate::exec_dir_filepath;
 
     #[test]
-    fn print_default_filepath() {
-        let filepath = default_filepath();
+    fn print_exec_dir_filepath() {
+        let filepath = exec_dir_filepath();
+        
+        // cargo test -- --nocapture
         println!("{:?}", filepath);
+
+        assert!(filepath.as_os_str().to_str().is_some())
     }
 }

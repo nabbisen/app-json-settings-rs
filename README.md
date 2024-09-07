@@ -13,12 +13,12 @@ use app_json_settings::JsonSettigs;
 
 #[tauri::command]
 fn settings_read_by_key(key: &str) -> Result<KeyValue, String> {
-    JsonSettigs::default().read_by_key(key).map_err(|err| err.to_string())
+    JsonSettigs::exec_dir().read_by_key(key).map_err(|err| err.to_string())
 }
 
 #[tauri::command]
 fn settings_write_by_key(key: &str, value: Value) -> Result<(), String> {
-    JsonSettigs::default().write_by_key(key, &value).map_err(|err| err.to_string())
+    JsonSettigs::exec_dir().write_by_key(key, &value).map_err(|err| err.to_string())
 }
 ```
 

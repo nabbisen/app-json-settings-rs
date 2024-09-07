@@ -29,12 +29,12 @@ impl JsonSettings {
         }
     }
 
-    pub fn default() -> JsonSettings {
+    pub fn exec_dir() -> JsonSettings {
         JsonSettings::new(
-            default_filepath()
+            exec_dir_filepath()
                 .as_os_str()
                 .to_str()
-                .expect("Failed to get default setting path as str"),
+                .expect("Failed to get setting path in exec dir as str"),
         )
     }
 
@@ -90,7 +90,7 @@ impl JsonSettings {
     }
 }
 
-fn default_filepath() -> PathBuf {
+fn exec_dir_filepath() -> PathBuf {
     let exec_filepath = std::env::current_exe().expect("Failed to get exec path");
     let dirpath = exec_filepath
         .parent()

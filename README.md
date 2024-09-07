@@ -13,25 +13,38 @@ use app_json_settings::JsonSettigs;
 
 #[tauri::command]
 fn settings_read_by_key(key: &str) -> Result<KeyValue, String> {
-    JsonSettigs::exec_dir().read_by_key(key).map_err(|err| err.to_string())
+    JsonSettigs::exe_dir().read_by_key(key).map_err(|err| err.to_string())
 }
 
 #[tauri::command]
 fn settings_write_by_key(key: &str, value: Value) -> Result<(), String> {
-    JsonSettigs::exec_dir().write_by_key(key, &value).map_err(|err| err.to_string())
+    JsonSettigs::exe_dir().write_by_key(key, &value).map_err(|err| err.to_string())
 }
 ```
+
+Instead of `exe_dir()`, `config_dir()` is available, which points to app dir in user config dir.
 
 ### TypeScript - as Tauri frontend
 
 ```ts
 import { invoke } from '@tauri-apps/api/core'
 
-const read = (key: string) => {
-  invoke('settings_read_by_key', { key: key })
+interface ReadByKeyResponse {
+  key: string
+  value: unknown
+  file_exists: boolean
+  key_exists: boolean
 }
 
-const write = (key: string, value: any) => {
+const read = (key: string): Promise<unknown> => {
+  return invoke('settings_read_by_key', { key: key }).then((res) => {
+    const _res = res as ReadByKeyResponse
+    if (!_res.file_exists || !_res.key_exists) return undefined
+    return _res.value
+  })
+}
+
+const write = <T>(key: string, value: any) => {
   invoke('settings_write_by_key', { key: key, value: value })
 }
 ```

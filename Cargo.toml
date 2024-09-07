@@ -1,6 +1,6 @@
 [package]
 name = "app-json-settings"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"
 
 description = "App settings as JSON format stored in file and available via read-by-key and write-by-key. Aims a tiny settings manager with reasonably few dependencies."

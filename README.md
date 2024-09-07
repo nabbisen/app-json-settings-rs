@@ -24,7 +24,7 @@ fn settings_write_by_key(key: &str, value: Value) -> Result<(), String> {
 
 ### TypeScript - as Tauri frontend
 
-```typescript
+```ts
 import { invoke } from '@tauri-apps/api/core'
 
 const read = (key: string) => {

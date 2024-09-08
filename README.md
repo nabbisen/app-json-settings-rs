@@ -55,7 +55,7 @@ const read = (key: string): Promise<unknown> => {
   })
 }
 
-const write = <T>(key: string, value: any) => {
+const write = (key: string, value: any) => {
   invoke('settings_write_by_key', { key: key, value: value })
 }
 ```

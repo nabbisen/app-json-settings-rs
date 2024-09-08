@@ -32,7 +32,7 @@ Instead of `JsonSettigs::exe_dir()` above, where to store the settings file has 
 | fn | where to store |
 | -- | -------------- |
 | `exe_dir()` | the same to where the executable is |
-| `config_dir()` | points to app dir in user config dir. The app dir name is automatically defined due to the executable name |
+| `config_dir()` | points to app dir in user config dir. the app dir name is automatically defined due to the executable name |
 | `new(filepath)` | custom path and file name |
 
 ### TypeScript - as Tauri frontend

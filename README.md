@@ -69,3 +69,7 @@ const write = <T>(key: string, value: any) => {
   "keyString": "Hello world."
 }
 ```
+
+## Acknowledgements
+
+Depends on: [serde](https://serde.rs/) / [serde_json](https://github.com/serde-rs/json) .

@@ -27,7 +27,13 @@ fn settings_write_by_key(key: &str, value: Value) -> Result<(), String> {
 }
 ```
 
-Instead of `exe_dir()`, `config_dir()` is available, which points to app dir in user config dir.
+Instead of `JsonSettigs::exe_dir()` above, where to store the settings file has options.
+
+| fn | where to store |
+| -- | -------------- |
+| `exe_dir()` | the same to where the executable is |
+| `config_dir()` | points to app dir in user config dir. The app dir name is automatically defined due to the executable name |
+| `new(filepath)` | custom path and file name |
 
 ### TypeScript - as Tauri frontend
 

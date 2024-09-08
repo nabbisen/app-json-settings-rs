@@ -1,11 +1,11 @@
 [package]
 name = "app-json-settings"
-version = "1.0.4"
+version = "1.0.5"
 edition = "2021"
 
 description = "App settings as JSON format stored in file and available via read-by-key and write-by-key. Aims a tiny settings manager with reasonably few dependencies."
 authors = ["nabbisen"]
-license-file = "./LICENSE"
+license = "Apache-2.0"
 
 categories = ["config"]
 keywords = ["json", "serde", "utility", "file"]

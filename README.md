@@ -15,24 +15,29 @@ The library focuses on safe, minimal, cross-platform configuration handling.
 
 ## Quick start
 
+```ini
+# Cargo.toml
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+app-json-settings = "2"
+```
+
 ```rust
 use app_json_settings::ConfigManager;
 
 #[derive(serde::Serialize, serde::Deserialize, Default)]
 struct Settings {
     volume: u32,
-    dark_mode: bool,
 }
 
-fn main() -> app_json_settings::Result<()> {
-    let config = ConfigManager::<Settings>::new("myapp");
+fn save() -> app_json_settings::Result<()> {
+    ConfigManager::new().save(&Settings { volume: 100 })?;
+    Ok(())
+}
 
-    // Safe even on first launch
-    let mut settings = config.load_or_default()?;
-
-    settings.volume = 50;
-    config.save(&settings)?;
-
+fn load() -> app_json_settings::Result<()> {
+    let settings = ConfigManager::<Settings>::new().load_or_default()?;
+    println!("{}", settings.volume);
     Ok(())
 }
 ```
@@ -101,7 +106,7 @@ No platform conditional code is required in your application.
 ## Customization
 
 ```rust
-let config = ConfigManager::<Settings>::new("myapp")
+let config = ConfigManager::<Settings>::new()
     .with_filename("user.json")
     .disable_pretty_json();
 ```
@@ -118,8 +123,7 @@ You usually do not need to manually load and save.
 
 ```rust
 config.update(|s| {
-    s.volume = 20;
-    s.dark_mode = true;
+    s.volume = 200;
 })?;
 ```
 

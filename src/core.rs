@@ -30,13 +30,14 @@ where
 {
     /// デフォルト初期化
     /// フォルダ: OS 標準 config ディレクトリ / app_name
-    pub fn new(app_name: &str) -> Self {
-        let mut path = default_config_dir();
-        path.push(app_name);
+    pub fn new() -> Self {
+        let folder_path = default_config_dir();
+
+        // let app_name = std::env::current_exe().unwrap_or_default();
 
         Self {
-            // app_name: app_name.to_string(),
-            folder_path: path,
+            // app_name,
+            folder_path,
             file_name: DEFAULT_FILE_NAME.to_string(),
             json_format: JsonFormat::Pretty,
             _marker: PhantomData,

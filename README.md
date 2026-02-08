@@ -1,75 +1,147 @@
 # App JSON Settings
 
-App settings as JSON format stored in file and available via read-by-key and write-by-key.
-
-Aims a tiny settings manager with reasonably few dependencies.
-
+![Rust](https://img.shields.io/badge/Rust-%23CE412B?style=flat&logo=rust&logoColor=white)
 [![crates.io](https://img.shields.io/crates/v/app-json-settings?label=latest)](https://crates.io/crates/app-json-settings)
 [![Documentation](https://docs.rs/app-json-settings/badge.svg?version=latest)](https://docs.rs/app-json-settings/latest)
 [![License](https://img.shields.io/github/license/nabbisen/app-json-settings-rs)](https://github.com/nabbisen/app-json-settings-rs/blob/main/LICENSE)
 [![Dependency Status](https://deps.rs/crate/app-json-settings/latest/status.svg)](https://deps.rs/crate/app-json-settings)
 
-## Examples
+**Typed application settings storage for Rust.**
 
-### Rust - as Tauri backend
+`app-json-settings` persists a Rust struct as your application configuration.
+You do not manipulate JSON manually and you do not manage config file paths yourself.
+
+The library focuses on safe, minimal, cross-platform configuration handling.
+
+## Quick start
 
 ```rust
-use app_json_settings::JsonSettigs;
+use app_json_settings::ConfigManager;
 
-#[tauri::command]
-fn settings_read_by_key(key: &str) -> Result<KeyValue, String> {
-    JsonSettigs::exe_dir().read_by_key(key).map_err(|err| err.to_string())
+#[derive(serde::Serialize, serde::Deserialize, Default)]
+struct Settings {
+    volume: u32,
+    dark_mode: bool,
 }
 
-#[tauri::command]
-fn settings_write_by_key(key: &str, value: Value) -> Result<(), String> {
-    JsonSettigs::exe_dir().write_by_key(key, &value).map_err(|err| err.to_string())
-}
-```
+fn main() -> app_json_settings::Result<()> {
+    let config = ConfigManager::<Settings>::new("myapp");
 
-Instead of `JsonSettigs::exe_dir()` above, where to store the settings file has options.
+    // Safe even on first launch
+    let mut settings = config.load_or_default()?;
 
-| fn | where to store |
-| -- | -------------- |
-| `exe_dir()` | the same to where the executable is |
-| `config_dir()` | points to app dir in user config dir. the app dir name is automatically defined due to the executable name |
-| `new(filepath)` | custom path and file name |
+    settings.volume = 50;
+    config.save(&settings)?;
 
-### TypeScript - as Tauri frontend
-
-```ts
-import { invoke } from '@tauri-apps/api/core'
-
-interface ReadByKeyResponse {
-  key: string
-  value: unknown
-  file_exists: boolean
-  key_exists: boolean
-}
-
-const read = (key: string): Promise<unknown> => {
-  return invoke('settings_read_by_key', { key: key }).then((res) => {
-    const _res = res as ReadByKeyResponse
-    if (!_res.file_exists || !_res.key_exists) return undefined
-    return _res.value
-  })
-}
-
-const write = (key: string, value: any) => {
-  invoke('settings_write_by_key', { key: key, value: value })
+    Ok(())
 }
 ```
 
-### settings.json
+---
 
-```json
-{
-  "keyBoolean": true,
-  "keyNumber": 1000,
-  "keyString": "Hello world."
-}
+## Why this library
+
+Writing config handling code repeatedly leads to:
+
+* fragile first-run initialization
+* manual path handling per OS
+* read → modify → write mistakes
+* string-key based settings
+
+This crate removes those concerns and lets the struct be the configuration.
+
+## Design goals
+
+* Minimal API surface
+* Predictable behavior
+* No runtime dependencies beyond Serde
+* Works for CLI, GUI, mobile, and server applications
+
+This crate is not a general database or dynamic settings system.
+It is a typed persistent configuration layer.
+
+---
+
+## Features
+
+### Safe configuration I/O
+
+* Load and save settings with minimal code
+* `load_or_default()` prevents first-run crashes
+* `update()` provides safe read-modify-write
+
+### Typed serialization
+
+* Uses your own struct as the configuration model
+* No string keys
+* Compile-time refactor safety
+* Serde `Serialize` / `Deserialize` supported
+
+### JSON focused
+
+* JSON only (intentionally)
+* Selectable output:
+
+  * compact
+  * pretty
+* Suitable for mobile I/O constraints while still human-readable
+
+### Cross-platform support
+
+The library internally resolves platform-specific config directories:
+
+* Windows → `%APPDATA%`
+* macOS → `~/Library/Application Support`
+* Linux / Unix → `$XDG_CONFIG_HOME` or `~/.config`
+
+No platform conditional code is required in your application.
+
+---
+
+## Customization
+
+```rust
+let config = ConfigManager::<Settings>::new("myapp")
+    .with_filename("user.json")
+    .disable_pretty_json();
 ```
+
+Options:
+
+* custom directory
+* custom file name
+* compact or pretty JSON output
+
+## Partial update
+
+You usually do not need to manually load and save.
+
+```rust
+config.update(|s| {
+    s.volume = 20;
+    s.dark_mode = true;
+})?;
+```
+
+`update()` guarantees a safe read-modify-write cycle.
+
+---
+
+## Choosing the right API
+
+| Function            | When to use                             |
+| ------------------- | --------------------------------------- |
+| `load()`            | Config file must already exist          |
+| `load_or_default()` | Normal application startup              |
+| `save()`            | Replace entire configuration            |
+| `update()`          | Modify part of the configuration safely |
+
+---
+
+## Open-source, with care
+
+This project is lovingly built and maintained by volunteers. We hope it helps streamline your work. Please understand that the project has its own direction — while we welcome feedback, it might not fit every edge case 🌱
 
 ## Acknowledgements
 
-Depends on: [serde](https://serde.rs/) / [serde_json](https://github.com/serde-rs/json) .
+Depends on the crates of [serde](https://serde.rs/), [serde_json](https://github.com/serde-rs/json) .

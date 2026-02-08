@@ -17,7 +17,6 @@ pub mod error;
 mod json;
 
 pub struct ConfigManager<T> {
-    app_name: String,
     folder_path: PathBuf,
     file_name: String,
     json_format: JsonFormat,
@@ -31,17 +30,16 @@ where
     /// デフォルト初期化
     /// フォルダ: OS 標準 config ディレクトリ / app_name
     pub fn new() -> Self {
-        let folder_path = default_config_dir();
-
         let app_name = std::env::current_exe()
-            .unwrap_or_default()
-            .file_name()
-            .unwrap_or_default()
+            .unwrap()
+            .file_stem()
+            .unwrap()
             .to_string_lossy()
             .to_string();
 
+        let folder_path = default_config_dir().join(&app_name);
+
         Self {
-            app_name,
             folder_path,
             file_name: DEFAULT_FILE_NAME.to_string(),
             json_format: JsonFormat::Pretty,
@@ -75,7 +73,7 @@ where
 
     /// フルパス取得
     pub fn path(&self) -> PathBuf {
-        self.folder_path.join(&self.app_name).join(&self.file_name)
+        self.folder_path.join(&self.file_name)
     }
 
     /// 完全保存（置換書き込み）

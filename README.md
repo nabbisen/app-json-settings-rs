@@ -148,4 +148,4 @@ This project is lovingly built and maintained by volunteers. We hope it helps st
 
 ## Acknowledgements
 
-Depends on the crates of [serde](https://serde.rs/), [serde_json](https://github.com/serde-rs/json) .
+Depends on the crates of [serde](https://serde.rs/), [serde_json](https://github.com/serde-rs/json).

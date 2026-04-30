@@ -1,10 +1,9 @@
 # App JSON Settings
 
-![Rust](https://img.shields.io/badge/Rust-%23CE412B?style=flat&logo=rust&logoColor=white)
-[![crates.io](https://img.shields.io/crates/v/app-json-settings?label=latest)](https://crates.io/crates/app-json-settings)
+[![crates.io](https://img.shields.io/crates/v/app-json-settings?label=rust)](https://crates.io/crates/app-json-settings)
 [![Documentation](https://docs.rs/app-json-settings/badge.svg?version=latest)](https://docs.rs/app-json-settings/latest)
-[![License](https://img.shields.io/github/license/nabbisen/app-json-settings-rs)](https://github.com/nabbisen/app-json-settings-rs/blob/main/LICENSE)
 [![Dependency Status](https://deps.rs/crate/app-json-settings/latest/status.svg)](https://deps.rs/crate/app-json-settings)
+[![License](https://img.shields.io/github/license/nabbisen/app-json-settings-rs)](https://github.com/nabbisen/app-json-settings-rs/blob/main/LICENSE)
 
 **Typed application settings storage for Rust.**
 

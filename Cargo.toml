@@ -1,7 +1,7 @@
 [package]
 name = "app-json-settings"
-version = "2.0.3"
-edition = "2021"
+version = "2.0.4"
+edition = "2024"
 
 description = "App settings as JSON format stored in file and available via read-by-key and write-by-key. Aims a tiny settings manager with reasonably few dependencies."
 authors = ["nabbisen"]
@@ -9,7 +9,7 @@ license = "Apache-2.0"
 
 categories = ["config"]
 keywords = ["json", "serde", "utility", "file"]
-rust-version = "1.90.0"
+rust-version = "1.85.0"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

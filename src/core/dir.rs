@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
-/// OS 別 config dir
+#[cfg(all(windows, feature = "uwp"))]
+use crate::{ConfigError, Result};
+
 pub fn default_config_dir() -> PathBuf {
     #[cfg(target_os = "windows")]
     {
@@ -29,7 +31,23 @@ pub fn default_config_dir() -> PathBuf {
     }
 }
 
-/// home dir
+#[cfg(all(windows, feature = "uwp"))]
+pub fn uwp_local_folder_dir() -> Result<PathBuf> {
+    use windows::Storage::ApplicationData;
+
+    let application_data = ApplicationData::Current().map_err(platform_error)?;
+    let local_folder = application_data.LocalFolder().map_err(platform_error)?;
+    let path = local_folder.Path().map_err(platform_error)?;
+
+    Ok(PathBuf::from(path.to_string_lossy()))
+}
+
+#[cfg(all(windows, feature = "uwp"))]
+fn platform_error(error: windows::core::Error) -> ConfigError {
+    ConfigError::Platform(error.message().to_string_lossy())
+}
+
+#[cfg(any(target_os = "macos", all(unix, not(target_os = "macos"))))]
 pub fn home_dir() -> PathBuf {
     std::env::var_os("HOME")
         .map(PathBuf::from)

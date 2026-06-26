@@ -8,13 +8,14 @@
 **Typed application settings storage for Rust.**
 
 `app-json-settings` persists a Rust struct as your application configuration.
-You do not manipulate JSON manually and you do not manage config file paths yourself.
+You do not manipulate JSON manually, and most desktop apps do not need to manage
+config file paths themselves.
 
 The library focuses on safe, minimal, cross-platform configuration handling.
 
 ## Quick start
 
-```ini
+```toml
 # Cargo.toml
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -41,15 +42,13 @@ fn load() -> app_json_settings::Result<()> {
 }
 ```
 
----
-
 ## Why this library
 
 Writing config handling code repeatedly leads to:
 
 * fragile first-run initialization
 * manual path handling per OS
-* read → modify → write mistakes
+* read -> modify -> write mistakes
 * string-key based settings
 
 This crate removes those concerns and lets the struct be the configuration.
@@ -58,13 +57,12 @@ This crate removes those concerns and lets the struct be the configuration.
 
 * Minimal API surface
 * Predictable behavior
-* No runtime dependencies beyond Serde
+* No default runtime dependencies beyond Serde
 * Works for CLI, GUI, mobile, and server applications
+* Compatible with sandboxed hosts through caller-provided root directories
 
-This crate is not a general database or dynamic settings system.
-It is a typed persistent configuration layer.
-
----
+This crate is not a general database or dynamic settings system. It is a typed
+persistent configuration layer.
 
 ## Features
 
@@ -83,24 +81,21 @@ It is a typed persistent configuration layer.
 
 ### JSON focused
 
-* JSON only (intentionally)
+* JSON only, intentionally
 * Selectable output:
-
   * compact
   * pretty
-* Suitable for mobile I/O constraints while still human-readable
+* Suitable for local application settings
 
-### Cross-platform support
+### Cross-platform desktop support
 
-The library internally resolves platform-specific config directories:
+The default API resolves platform-specific config directories internally:
 
-* Windows → `%APPDATA%`
-* macOS → `~/Library/Application Support`
-* Linux / Unix → `$XDG_CONFIG_HOME` or `~/.config`
+* Windows desktop -> `%APPDATA%`
+* macOS -> `~/Library/Application Support`
+* Linux / Unix -> `$XDG_CONFIG_HOME` or `~/.config`
 
-No platform conditional code is required in your application.
-
----
+No platform conditional code is required in ordinary desktop applications.
 
 ## Customization
 
@@ -112,9 +107,50 @@ let config = ConfigManager::<Settings>::new()
 
 Options:
 
-* custom directory
+* custom directory with `with_root_dir()`
 * custom file name
 * compact or pretty JSON output
+
+`at_custom_dir()` remains available for v2.0.x compatibility. New code should
+prefer `with_root_dir()` because it describes the sandbox-friendly design more
+clearly.
+
+## Sandboxed and Pure UWP hosts
+
+Pure UWP apps should not rely on classic desktop `%APPDATA%` path resolution.
+Use one of these patterns instead.
+
+### Host-resolved root directory
+
+Resolve the app-local data directory in the host application, then pass it to
+this crate:
+
+```rust
+let config = ConfigManager::<Settings>::new()
+    .with_root_dir(uwp_local_folder_path)
+    .with_filename("settings.json");
+```
+
+This path has no additional dependency for normal users of the crate.
+
+### Optional UWP resolver
+
+Enable the optional `uwp` feature to resolve
+`Windows.Storage.ApplicationData.Current.LocalFolder` from the crate:
+
+```toml
+[dependencies]
+app-json-settings = { version = "2", features = ["uwp"] }
+```
+
+```rust
+let config = ConfigManager::<Settings>::new()
+    .at_uwp_local_folder()?
+    .with_filename("settings.json");
+```
+
+The `uwp` feature is Windows-only and pulls in the `windows` crate only when
+requested. The default build does not depend on `windows`.
 
 ## Partial update
 
@@ -128,8 +164,6 @@ config.update(|s| {
 
 `update()` guarantees a safe read-modify-write cycle.
 
----
-
 ## Choosing the right API
 
 | Function            | When to use                             |
@@ -138,13 +172,15 @@ config.update(|s| {
 | `load_or_default()` | Normal application startup              |
 | `save()`            | Replace entire configuration            |
 | `update()`          | Modify part of the configuration safely |
-
----
+| `with_root_dir()`   | Sandboxed hosts, tests, portable mode   |
 
 ## Open-source, with care
 
-This project is lovingly built and maintained by volunteers. We hope it helps streamline your work. Please understand that the project has its own direction — while we welcome feedback, it might not fit every edge case 🌱
+This project is lovingly built and maintained by volunteers. We hope it helps
+streamline your work. Please understand that the project has its own direction,
+and while we welcome feedback, it might not fit every edge case.
 
 ## Acknowledgements
 
-Depends on the crates of [serde](https://serde.rs/), [serde_json](https://github.com/serde-rs/json).
+Depends on the crates of [serde](https://serde.rs/) and
+[serde_json](https://github.com/serde-rs/json).

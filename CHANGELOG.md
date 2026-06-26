@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.2.0
+
+### Added
+
+* Added `ConfigManager::for_app()` for explicit stable application identity.
+* Added `ConfigManager::try_with_filename()` for checked plain-file-name configuration.
+* Added `ConfigManager::file_name()` for public API inspection.
+* Added public validation helpers: `is_plain_file_name()` and `is_safe_path_component()`.
+* Added `ConfigError::InvalidPathComponent` for caller-supplied unsafe names.
+* Added integration tests under `tests/`.
+* Added mdBook-compatible documentation under `docs/src`.
+* Added RFC lifecycle structure using `rfcs/done`, `rfcs/proposed`, and `rfcs/archive`.
+* Added `rfcs/README.md`, `ROADMAP.md`, `NOTICE`, CI workflow, and RFC integrity script.
+
+### Changed
+
+* Bumped crate version to `2.2.0`.
+* Shortened `README.md` and moved detail-oriented guidance to `docs/src`.
+* Made JSON serialization and deserialization error mapping explicit at the call site.
+* Moved RFC 021 to `rfcs/done/` and marked it implemented in v2.1.0.
+* Replaced the old commented integration test file with real public API tests.
+
+### Compatibility
+
+* `ConfigManager::new()`, `with_filename()`, and `at_custom_dir()` remain available.
+* Default features still do not pull in the `windows` crate.
+* Atomic replacement writes are not implemented in v2.2.0; they are planned for v2.3.0.
+
 ## 2.1.0
 
 ### Added

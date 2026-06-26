@@ -31,6 +31,14 @@ pub fn default_config_dir() -> PathBuf {
     }
 }
 
+pub fn default_runtime_app_name() -> String {
+    std::env::current_exe()
+        .ok()
+        .and_then(|path| path.file_stem().map(|name| name.to_string_lossy().to_string()))
+        .filter(|name| crate::core::validation::is_safe_path_component(name))
+        .unwrap_or_else(|| "app".to_string())
+}
+
 #[cfg(all(windows, feature = "uwp"))]
 pub fn uwp_local_folder_dir() -> Result<PathBuf> {
     use windows::Storage::ApplicationData;

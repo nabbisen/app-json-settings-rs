@@ -1,26 +1,39 @@
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 
 use std::fs;
 use std::io;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
 
-use crate::core::constant::DEFAULT_FILE_NAME;
-use crate::core::dir::default_config_dir;
-#[cfg(all(windows, feature = "uwp"))]
-use crate::core::dir::uwp_local_folder_dir;
-use crate::core::json::JsonFormat;
 use crate::ConfigError;
 use crate::Result;
+use crate::core::constant::DEFAULT_FILE_NAME;
+use crate::core::dir::{default_config_dir, default_runtime_app_name};
+#[cfg(all(windows, feature = "uwp"))]
+use crate::core::dir::uwp_local_folder_dir;
+use crate::core::json::{JsonFormat, deserialize, serialize};
+use crate::core::validation::{validate_path_component, validate_plain_file_name};
 
 pub mod constant;
 mod dir;
 pub mod error;
 mod json;
+pub mod validation;
 
 #[cfg(test)]
 mod tests;
 
+/// Manages one typed JSON settings file.
+///
+/// `ConfigManager<T>` stores and loads a complete configuration value of type
+/// `T`. The type must implement Serde `Serialize` and `DeserializeOwned`.
+///
+/// The manager is intentionally small. It owns only:
+///
+/// * the directory containing the settings file,
+/// * the settings file name, and
+/// * the JSON output format.
+#[derive(Debug, Clone)]
 pub struct ConfigManager<T> {
     folder_path: PathBuf,
     file_name: String,
@@ -32,21 +45,40 @@ impl<T> ConfigManager<T>
 where
     T: Serialize + DeserializeOwned,
 {
-    /// Creates a config manager using the OS standard config directory and current executable name.
+    /// Creates a config manager using the OS-standard config directory and the
+    /// current executable name.
     ///
-    /// On Windows desktop apps this resolves under `%APPDATA%`.
-    /// Pure UWP apps should use `with_root_dir` or the optional `uwp` feature instead.
+    /// On Windows desktop apps this resolves under `%APPDATA%`. Pure UWP apps
+    /// should use [`with_root_dir`](Self::with_root_dir) or the optional
+    /// `uwp` feature instead.
+    ///
+    /// For production applications, prefer [`for_app`](Self::for_app) because
+    /// it uses an explicit stable application identity instead of deriving one
+    /// from the executable file name.
     pub fn new() -> Self {
-        let app_name = std::env::current_exe()
-            .ok()
-            .and_then(|path| path.file_stem().map(|name| name.to_string_lossy().to_string()))
-            .unwrap_or_else(|| "app".to_string());
+        Self::from_parts(default_config_dir().join(default_runtime_app_name()), DEFAULT_FILE_NAME)
+    }
 
-        let folder_path = default_config_dir().join(&app_name);
+    /// Creates a config manager for an explicit application name.
+    ///
+    /// This is the recommended desktop constructor for production apps because
+    /// the storage directory is stable even if the executable file name changes.
+    /// The `app_name` must be a single safe path component, not a path.
+    pub fn for_app(app_name: &str) -> Result<Self> {
+        let app_name = validate_path_component(app_name)?;
+        Ok(Self::from_parts(
+            default_config_dir().join(app_name),
+            DEFAULT_FILE_NAME,
+        ))
+    }
 
+    fn from_parts<P>(folder_path: P, file_name: &str) -> Self
+    where
+        P: Into<PathBuf>,
+    {
         Self {
-            folder_path,
-            file_name: DEFAULT_FILE_NAME.to_string(),
+            folder_path: folder_path.into(),
+            file_name: file_name.to_string(),
             json_format: JsonFormat::Pretty,
             _marker: PhantomData,
         }
@@ -60,8 +92,9 @@ where
 
     /// Stores the settings file in a caller-provided directory.
     ///
-    /// This is the primary compatibility seam for sandboxed hosts, including Pure UWP.
-    /// The host application may resolve its application data directory and pass it here.
+    /// This is the primary compatibility seam for sandboxed hosts, including
+    /// Pure UWP. The host application may resolve its application data directory
+    /// and pass it here.
     pub fn with_root_dir<P: Into<PathBuf>>(mut self, path: P) -> Self {
         self.folder_path = path.into();
         self
@@ -69,24 +102,39 @@ where
 
     /// Stores the settings file in a caller-provided directory.
     ///
-    /// This method is kept for compatibility with v2.0.x. Prefer `with_root_dir` in new code.
+    /// This method is kept for compatibility with v2.0.x. Prefer
+    /// [`with_root_dir`](Self::with_root_dir) in new code.
     pub fn at_custom_dir<P: Into<PathBuf>>(self, path: P) -> Self {
         self.with_root_dir(path)
     }
 
     /// Stores the settings file under `ApplicationData.Current.LocalFolder`.
     ///
-    /// This method is available only on Windows when the optional `uwp` feature is enabled.
+    /// This method is available only on Windows when the optional `uwp` feature
+    /// is enabled.
     #[cfg(all(windows, feature = "uwp"))]
     pub fn at_uwp_local_folder(mut self) -> Result<Self> {
         self.folder_path = uwp_local_folder_dir()?;
         Ok(self)
     }
 
-    /// Changes the settings file name.
+    /// Changes the settings file name without validation.
+    ///
+    /// This method is retained for v2.x compatibility. New code should prefer
+    /// [`try_with_filename`](Self::try_with_filename), which rejects path-like
+    /// names such as `../settings.json`.
     pub fn with_filename(mut self, name: &str) -> Self {
         self.file_name = name.to_string();
         self
+    }
+
+    /// Changes the settings file name after validating it as a plain file name.
+    ///
+    /// The accepted value must be a single file name, not an absolute path and
+    /// not a relative path containing directory traversal.
+    pub fn try_with_filename(mut self, name: &str) -> Result<Self> {
+        self.file_name = validate_plain_file_name(name)?.to_string();
+        Ok(self)
     }
 
     /// Stores JSON in compact form instead of pretty-printed form.
@@ -100,6 +148,11 @@ where
         &self.folder_path
     }
 
+    /// Returns the settings file name.
+    pub fn file_name(&self) -> &str {
+        &self.file_name
+    }
+
     /// Returns the settings file path.
     pub fn path(&self) -> PathBuf {
         self.folder_path.join(&self.file_name)
@@ -107,23 +160,15 @@ where
 
     /// Saves the complete configuration, replacing the existing file content.
     pub fn save(&self, config: &T) -> Result<()> {
-        if !self.folder_path.exists() {
-            fs::create_dir_all(&self.folder_path)?;
-        }
-
-        let content = match self.json_format {
-            JsonFormat::Compact => serde_json::to_string(config)?,
-            JsonFormat::Pretty => serde_json::to_string_pretty(config)?,
-        };
-
-        fs::write(self.path(), content)?;
+        fs::create_dir_all(&self.folder_path)?;
+        fs::write(self.path(), serialize(config, self.json_format)?)?;
         Ok(())
     }
 
     /// Loads a configuration file that is expected to already exist.
     pub fn load(&self) -> Result<T> {
         let content = fs::read_to_string(self.path())?;
-        Ok(serde_json::from_str(&content)?)
+        deserialize(&content)
     }
 }
 
@@ -145,7 +190,7 @@ where
         let path = self.path();
 
         match fs::read_to_string(&path) {
-            Ok(content) => Ok(serde_json::from_str(&content)?),
+            Ok(content) => deserialize(&content),
 
             Err(e) if e.kind() == io::ErrorKind::NotFound => {
                 let default_config = T::default();

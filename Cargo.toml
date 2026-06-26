@@ -1,7 +1,9 @@
 [package]
 name = "app-json-settings"
-version = "2.1.0"
-description = "App settings as JSON format stored in file and available via read-by-key and write-by-key. Aims a tiny settings manager with reasonably few dependencies."
+version = "2.2.0"
+description = "Tiny typed JSON settings persistence for Rust applications."
+readme = "README.md"
+exclude = [".vscode/"]
 
 edition = "2024"
 rust-version = "1.85.0"
@@ -9,7 +11,7 @@ license = "Apache-2.0"
 authors = ["nabbisen"]
 repository = "https://github.com/nabbisen/app-json-settings-rs"
 categories = ["config"]
-keywords = ["json", "serde", "utility", "file"]
+keywords = ["json", "serde", "settings", "config", "appdata"]
 
 [features]
 default = []

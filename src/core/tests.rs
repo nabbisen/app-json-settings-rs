@@ -1,4 +1,5 @@
 use super::ConfigManager;
+use super::validation::{is_plain_file_name, is_safe_path_component};
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -33,9 +34,11 @@ fn with_root_dir_controls_settings_location() {
     let dir = temp_dir("root-dir");
     let manager = ConfigManager::<TestSettings>::new()
         .with_root_dir(&dir)
-        .with_filename("user.json");
+        .try_with_filename("user.json")
+        .expect("file name should be valid");
 
     assert_eq!(manager.folder_path(), dir.as_path());
+    assert_eq!(manager.file_name(), "user.json");
     assert_eq!(manager.path(), dir.join("user.json"));
 }
 
@@ -45,6 +48,30 @@ fn at_custom_dir_remains_backward_compatible_alias() {
     let manager = ConfigManager::<TestSettings>::new().at_custom_dir(&dir);
 
     assert_eq!(manager.folder_path(), dir.as_path());
+}
+
+#[test]
+fn for_app_uses_explicit_app_identity() {
+    let manager = ConfigManager::<TestSettings>::for_app("app-json-settings-test")
+        .expect("app name should be valid");
+
+    assert!(manager.folder_path().ends_with("app-json-settings-test"));
+}
+
+#[test]
+fn safe_file_name_validation_rejects_paths() {
+    assert!(is_plain_file_name("settings.json"));
+    assert!(is_safe_path_component("app-json-settings"));
+
+    for value in ["", ".", "..", "../settings.json", "a/b.json", r"a\b.json", "C:settings.json"] {
+        assert!(!is_plain_file_name(value), "{value:?} should be invalid");
+        assert!(
+            ConfigManager::<TestSettings>::new()
+                .try_with_filename(value)
+                .is_err(),
+            "{value:?} should be rejected by try_with_filename"
+        );
+    }
 }
 
 #[test]
@@ -95,6 +122,18 @@ fn load_or_default_creates_missing_file() {
 
     assert_eq!(settings, TestSettings::default());
     assert!(manager.path().exists());
+}
+
+#[test]
+fn load_reports_invalid_json_as_deserialization_error() {
+    let dir = temp_dir("invalid-json");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    fs::create_dir_all(&dir).expect("test directory should be created");
+    fs::write(manager.path(), "not-json").expect("invalid settings file should be written");
+
+    let error = manager.load().expect_err("invalid JSON should fail");
+    assert!(matches!(error, crate::ConfigError::Deserialize(_)));
 }
 
 #[test]

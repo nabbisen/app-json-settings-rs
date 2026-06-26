@@ -1,11 +1,18 @@
 use std::fmt;
 use std::io;
 
+/// Error type returned by `app-json-settings` operations.
 #[derive(Debug)]
 pub enum ConfigError {
+    /// File-system or stream I/O failed.
     Io(io::Error),
+    /// JSON serialization failed while saving a configuration value.
     Serialize(serde_json::Error),
+    /// JSON deserialization failed while loading a configuration value.
     Deserialize(serde_json::Error),
+    /// A caller-supplied file name or path component is unsafe.
+    InvalidPathComponent(String),
+    /// A platform-specific storage resolver failed.
     Platform(String),
 }
 
@@ -15,22 +22,15 @@ impl From<io::Error> for ConfigError {
     }
 }
 
-impl From<serde_json::Error> for ConfigError {
-    fn from(e: serde_json::Error) -> Self {
-        if e.is_data() || e.is_syntax() {
-            ConfigError::Deserialize(e)
-        } else {
-            ConfigError::Serialize(e)
-        }
-    }
-}
-
 impl fmt::Display for ConfigError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ConfigError::Io(e) => write!(f, "I/O error: {e}"),
             ConfigError::Serialize(e) => write!(f, "JSON serialization error: {e}"),
             ConfigError::Deserialize(e) => write!(f, "JSON deserialization error: {e}"),
+            ConfigError::InvalidPathComponent(value) => {
+                write!(f, "invalid path component: {value:?}")
+            }
             ConfigError::Platform(e) => write!(f, "platform error: {e}"),
         }
     }
@@ -41,7 +41,7 @@ impl std::error::Error for ConfigError {
         match self {
             ConfigError::Io(e) => Some(e),
             ConfigError::Serialize(e) | ConfigError::Deserialize(e) => Some(e),
-            ConfigError::Platform(_) => None,
+            ConfigError::InvalidPathComponent(_) | ConfigError::Platform(_) => None,
         }
     }
 }

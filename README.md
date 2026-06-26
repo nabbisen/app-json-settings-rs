@@ -28,6 +28,7 @@ Use this crate when your application has a small settings struct and you want:
 
 * first-run defaults with `load_or_default()`
 * read-modify-write updates with `update()`
+* atomic save by default, with direct save still available
 * OS-default config locations for desktop apps
 * caller-provided storage roots for tests, portable mode, or sandboxed hosts
 * optional Pure UWP local-folder resolution without a default `windows` dependency
@@ -68,6 +69,7 @@ fn main() -> app_json_settings::Result<()> {
 * `ConfigManager::for_app()` is the recommended desktop constructor.
 * `ConfigManager::with_root_dir()` is the sandbox-friendly storage seam.
 * `ConfigManager::try_with_filename()` validates plain file names.
+* `SaveMode::Atomic` is the default save strategy.
 * `with_filename()` remains available for v2.x compatibility.
 * The optional `uwp` feature enables `at_uwp_local_folder()` on Windows.
 
@@ -78,6 +80,7 @@ Start with:
 
 * `docs/src/quick-start.md`
 * `docs/src/storage-model.md`
+* `docs/src/save-behavior.md`
 * `docs/src/platform-behavior.md`
 * `docs/src/uwp.md`
 * `docs/src/api-guide.md`

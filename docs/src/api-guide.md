@@ -51,13 +51,26 @@ manager.save(&settings)?;
 let settings = manager.load()?;
 ```
 
-`load()` expects the file to already exist.
+`save()` uses atomic replacement by default since v2.3.0. `load()` expects the
+file to already exist.
 
 For normal app startup:
 
 ```rust
 let settings = manager.load_or_default()?;
 ```
+
+## Save mode
+
+```rust
+use app_json_settings::SaveMode;
+
+let manager = ConfigManager::<Settings>::for_app("my-app")?
+    .with_save_mode(SaveMode::Direct);
+```
+
+`SaveMode::Atomic` is the default. `SaveMode::Direct` is available when an
+application intentionally wants direct overwrite behavior.
 
 ## Updates
 
@@ -67,4 +80,5 @@ manager.update(|settings| {
 })?;
 ```
 
-`update()` performs a load-or-default, applies the closure, and saves the result.
+`update()` performs a load-or-default, applies the closure, and saves the result
+using the configured save mode.

@@ -49,6 +49,15 @@ prefer the checked API.
 
 ## Save behavior
 
-In v2.2.0, `save()` writes the final file directly. Atomic replacement is planned
-for v2.3.0 because it needs careful cross-platform behavior, especially on
-Windows.
+Since v2.3.0, `save()` uses `SaveMode::Atomic` by default. It writes JSON to a
+unique temporary file in the same directory, flushes it, and then replaces the
+final settings file.
+
+Applications that need the previous direct-write behavior can opt in:
+
+```rust
+let manager = ConfigManager::<Settings>::for_app("my-app")?
+    .with_direct_save();
+```
+
+See [Save behavior](save-behavior.md) for platform notes and limits.

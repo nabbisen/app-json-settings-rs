@@ -1,5 +1,31 @@
 # Changelog
 
+## 2.3.0
+
+### Added
+
+* Added `SaveMode` with `Atomic` and `Direct` strategies.
+* Added `ConfigManager::with_save_mode()`.
+* Added `ConfigManager::with_direct_save()`.
+* Added `ConfigManager::save_mode()`.
+* Added atomic-save implementation using same-directory temporary files.
+* Added Windows replacement support through a small internal `MoveFileExW` wrapper without adding a default `windows` dependency.
+* Added `docs/src/save-behavior.md`.
+* Added tests for save-mode selection, default atomic mode, atomic temporary-file cleanup, and serialization-failure preservation.
+
+### Changed
+
+* Bumped crate version to `2.3.0`.
+* Changed the default save behavior from direct overwrite to atomic replacement.
+* Moved RFC 024 to `rfcs/done/` and marked it implemented in v2.3.0.
+* Updated storage, API, platform, testing, migration, and roadmap documentation for atomic save.
+
+### Compatibility
+
+* Public load/save/update APIs remain source-compatible.
+* Applications that want v2.2-style direct overwrite behavior can call `with_direct_save()` or `with_save_mode(SaveMode::Direct)`.
+* The default build still does not depend on the `windows` crate.
+
 ## 2.2.0
 
 ### Added

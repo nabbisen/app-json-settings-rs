@@ -63,7 +63,15 @@ fn safe_file_name_validation_rejects_paths() {
     assert!(is_plain_file_name("settings.json"));
     assert!(is_safe_path_component("app-json-settings"));
 
-    for value in ["", ".", "..", "../settings.json", "a/b.json", r"a\b.json", "C:settings.json"] {
+    for value in [
+        "",
+        ".",
+        "..",
+        "../settings.json",
+        "a/b.json",
+        r"a\b.json",
+        "C:settings.json",
+    ] {
         assert!(!is_plain_file_name(value), "{value:?} should be invalid");
         assert!(
             ConfigManager::<TestSettings>::new()
@@ -158,4 +166,109 @@ fn update_modifies_and_persists_configuration() {
 
     let loaded = manager.load().expect("saved settings should load");
     assert_eq!(loaded, updated);
+}
+
+#[test]
+fn default_save_mode_is_atomic() {
+    let manager = ConfigManager::<TestSettings>::new();
+    assert_eq!(manager.save_mode(), super::SaveMode::Atomic);
+}
+
+#[test]
+fn direct_save_mode_can_be_selected() {
+    let manager = ConfigManager::<TestSettings>::new().with_direct_save();
+    assert_eq!(manager.save_mode(), super::SaveMode::Direct);
+}
+
+#[test]
+fn explicit_save_mode_can_be_selected() {
+    let manager = ConfigManager::<TestSettings>::new().with_save_mode(super::SaveMode::Direct);
+    assert_eq!(manager.save_mode(), super::SaveMode::Direct);
+}
+
+#[test]
+fn direct_save_writes_settings_file() {
+    let dir = temp_dir("direct-save");
+    let manager = ConfigManager::<TestSettings>::new()
+        .with_root_dir(&dir)
+        .with_direct_save();
+
+    manager
+        .save(&TestSettings {
+            volume: 9,
+            enabled: false,
+        })
+        .expect("direct save should succeed");
+
+    let loaded = manager.load().expect("direct-saved settings should load");
+    assert_eq!(
+        loaded,
+        TestSettings {
+            volume: 9,
+            enabled: false,
+        }
+    );
+}
+
+#[test]
+fn atomic_save_does_not_leave_temp_file_after_success() {
+    let dir = temp_dir("atomic-temp-cleanup");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 11,
+            enabled: true,
+        })
+        .expect("atomic save should succeed");
+
+    let entries = fs::read_dir(&dir).expect("settings directory should exist");
+    let temp_files: Vec<_> = entries
+        .map(|entry| entry.expect("directory entry should be readable"))
+        .filter(|entry| entry.file_name().to_string_lossy().contains(".tmp."))
+        .collect();
+
+    assert!(
+        temp_files.is_empty(),
+        "temporary files should be cleaned up"
+    );
+}
+
+#[derive(Debug, Deserialize)]
+struct FailingSerializeSettings;
+
+impl Serialize for FailingSerializeSettings {
+    fn serialize<S>(&self, _serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        Err(serde::ser::Error::custom(
+            "intentional serialization failure",
+        ))
+    }
+}
+
+#[test]
+fn failed_serialization_preserves_existing_file() {
+    let dir = temp_dir("serialization-failure-preserves-existing");
+    let good_manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    good_manager
+        .save(&TestSettings {
+            volume: 5,
+            enabled: true,
+        })
+        .expect("initial save should succeed");
+
+    let before = fs::read_to_string(good_manager.path()).expect("existing file should be readable");
+
+    let failing_manager = ConfigManager::<FailingSerializeSettings>::new().with_root_dir(&dir);
+    let error = failing_manager
+        .save(&FailingSerializeSettings)
+        .expect_err("serialization should fail before touching storage");
+
+    assert!(matches!(error, crate::ConfigError::Serialize(_)));
+    let after =
+        fs::read_to_string(good_manager.path()).expect("existing file should remain readable");
+    assert_eq!(after, before);
 }

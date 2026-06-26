@@ -8,17 +8,21 @@ use std::path::{Path, PathBuf};
 use crate::ConfigError;
 use crate::Result;
 use crate::core::constant::DEFAULT_FILE_NAME;
-use crate::core::dir::{default_config_dir, default_runtime_app_name};
 #[cfg(all(windows, feature = "uwp"))]
 use crate::core::dir::uwp_local_folder_dir;
+use crate::core::dir::{default_config_dir, default_runtime_app_name};
 use crate::core::json::{JsonFormat, deserialize, serialize};
+use crate::core::save::save_to_path;
 use crate::core::validation::{validate_path_component, validate_plain_file_name};
 
 pub mod constant;
 mod dir;
 pub mod error;
 mod json;
+mod save;
 pub mod validation;
+
+pub use save::SaveMode;
 
 #[cfg(test)]
 mod tests;
@@ -31,13 +35,15 @@ mod tests;
 /// The manager is intentionally small. It owns only:
 ///
 /// * the directory containing the settings file,
-/// * the settings file name, and
-/// * the JSON output format.
+/// * the settings file name,
+/// * the JSON output format, and
+/// * the save strategy.
 #[derive(Debug, Clone)]
 pub struct ConfigManager<T> {
     folder_path: PathBuf,
     file_name: String,
     json_format: JsonFormat,
+    save_mode: SaveMode,
     _marker: PhantomData<T>,
 }
 
@@ -56,7 +62,10 @@ where
     /// it uses an explicit stable application identity instead of deriving one
     /// from the executable file name.
     pub fn new() -> Self {
-        Self::from_parts(default_config_dir().join(default_runtime_app_name()), DEFAULT_FILE_NAME)
+        Self::from_parts(
+            default_config_dir().join(default_runtime_app_name()),
+            DEFAULT_FILE_NAME,
+        )
     }
 
     /// Creates a config manager for an explicit application name.
@@ -80,6 +89,7 @@ where
             folder_path: folder_path.into(),
             file_name: file_name.to_string(),
             json_format: JsonFormat::Pretty,
+            save_mode: SaveMode::Atomic,
             _marker: PhantomData,
         }
     }
@@ -143,6 +153,28 @@ where
         self
     }
 
+    /// Selects the save strategy.
+    ///
+    /// The default is [`SaveMode::Atomic`]. Use [`SaveMode::Direct`] only when
+    /// an application intentionally wants v2.2-style direct overwrite behavior
+    /// or needs to work around unusual filesystem semantics.
+    pub fn with_save_mode(mut self, mode: SaveMode) -> Self {
+        self.save_mode = mode;
+        self
+    }
+
+    /// Selects direct overwrite saves.
+    ///
+    /// This is a convenience alias for `with_save_mode(SaveMode::Direct)`.
+    pub fn with_direct_save(self) -> Self {
+        self.with_save_mode(SaveMode::Direct)
+    }
+
+    /// Returns the configured save strategy.
+    pub fn save_mode(&self) -> SaveMode {
+        self.save_mode
+    }
+
     /// Returns the settings folder path.
     pub fn folder_path(&self) -> &Path {
         &self.folder_path
@@ -160,9 +192,8 @@ where
 
     /// Saves the complete configuration, replacing the existing file content.
     pub fn save(&self, config: &T) -> Result<()> {
-        fs::create_dir_all(&self.folder_path)?;
-        fs::write(self.path(), serialize(config, self.json_format)?)?;
-        Ok(())
+        let content = serialize(config, self.json_format)?;
+        save_to_path(&self.path(), &content, self.save_mode)
     }
 
     /// Loads a configuration file that is expected to already exist.

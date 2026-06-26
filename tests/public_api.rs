@@ -1,4 +1,4 @@
-use app_json_settings::{ConfigError, ConfigManager, DEFAULT_FILE_NAME};
+use app_json_settings::{ConfigError, ConfigManager, DEFAULT_FILE_NAME, SaveMode};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -97,4 +97,15 @@ fn compact_json_is_public_api() {
 
     let raw = fs::read_to_string(manager.path()).expect("settings file should be readable");
     assert_eq!(raw, r#"{"theme":"dark","launch_count":3}"#);
+}
+
+#[test]
+fn save_mode_is_public_api() {
+    let manager = ConfigManager::<Settings>::new().with_save_mode(SaveMode::Direct);
+
+    assert_eq!(manager.save_mode(), SaveMode::Direct);
+    assert_eq!(
+        ConfigManager::<Settings>::new().save_mode(),
+        SaveMode::Atomic
+    );
 }

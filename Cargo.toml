@@ -1,17 +1,17 @@
 [package]
-name = "app-json-settings"
-version = "2.2.0"
+name        = "app-json-settings"
+version     = "2.3.0"
 description = "Tiny typed JSON settings persistence for Rust applications."
-readme = "README.md"
-exclude = [".vscode/"]
+readme      = "README.md"
+exclude     = [".vscode/"]
 
-edition = "2024"
-rust-version = "1.85.0"
-license = "Apache-2.0"
-authors = ["nabbisen"]
-repository = "https://github.com/nabbisen/app-json-settings-rs"
-categories = ["config"]
-keywords = ["json", "serde", "settings", "config", "appdata"]
+edition         = "2024"
+rust-version    = "1.85.0"
+license         = "Apache-2.0"
+authors         = ["nabbisen"]
+repository      = "https://github.com/nabbisen/app-json-settings-rs"
+categories      = ["config"]
+keywords        = ["json", "serde", "settings", "config", "appdata"]
 
 [features]
 default = []

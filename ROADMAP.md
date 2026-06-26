@@ -13,12 +13,20 @@ Status: implemented in v2.2.0.
 
 ## v2.3.x — Save reliability
 
+Status: implemented in v2.3.0.
+
+* Added `SaveMode::Atomic` as the default save strategy.
+* Added `SaveMode::Direct` and direct-save builder APIs for compatibility.
+* Defined overwrite and replacement behavior on Windows, macOS, and Unix.
+* Added reliability-oriented tests around save mode and temporary-file cleanup.
+
+## v2.4.x — Candidate follow-ups
+
 Status: planned.
 
-* Add atomic save mode.
-* Define overwrite and rename behavior on Windows, macOS, and Unix.
-* Add crash-safety-oriented tests where practical.
-* Keep direct-write fallback available if a platform cannot support robust atomic replacement.
+* Consider recovery guidance for externally corrupted settings files.
+* Add GUI-framework examples if they remain small and dependency-light.
+* Review docs.rs examples and doctest coverage.
 
 ## Later candidates
 

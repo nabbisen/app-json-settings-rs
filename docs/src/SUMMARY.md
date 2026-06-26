@@ -3,6 +3,7 @@
 - [Introduction](introduction.md)
 - [Quick start](quick-start.md)
 - [Storage model](storage-model.md)
+- [Save behavior](save-behavior.md)
 - [API guide](api-guide.md)
 - [Platform behavior](platform-behavior.md)
 - [Pure UWP support](uwp.md)

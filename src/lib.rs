@@ -23,7 +23,7 @@
 
 mod core;
 
-pub use core::ConfigManager;
 pub use core::constant::DEFAULT_FILE_NAME;
 pub use core::error::{ConfigError, Result};
 pub use core::validation::{is_plain_file_name, is_safe_path_component};
+pub use core::{ConfigManager, SaveMode};

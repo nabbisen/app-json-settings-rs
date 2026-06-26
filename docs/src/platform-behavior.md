@@ -20,3 +20,14 @@ pass it with `with_root_dir()`.
 
 This keeps the crate simple and prevents normal desktop users from paying for
 platform-specific dependencies they do not need.
+
+
+## Save replacement behavior
+
+`SaveMode::Atomic` uses platform-specific replacement primitives.
+
+* Unix-like platforms use same-directory `rename` replacement.
+* Windows uses an internal `MoveFileExW` wrapper with replace-existing and
+  write-through flags.
+* Other targets do not claim replacement of an existing file as atomic. Use
+  `SaveMode::Direct` unless a target-specific replacement implementation is added.

@@ -14,6 +14,7 @@ cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 cargo test
 cargo test --no-default-features
+cargo test --doc
 scripts/check-rfcs.sh
 ```
 

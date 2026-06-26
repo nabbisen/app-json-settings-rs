@@ -23,3 +23,18 @@ let manager = manager.try_with_filename("settings.json")?;
 ```
 
 `with_filename()` remains available for v2.x compatibility.
+
+
+## v2.2.0 to v2.3.0
+
+`SaveMode` was added and `save()` now uses `SaveMode::Atomic` by default.
+
+Applications that intentionally want the previous direct overwrite behavior can
+select it explicitly:
+
+```rust
+let manager = ConfigManager::<Settings>::for_app("my-app")?
+    .with_direct_save();
+```
+
+The public loading, saving, and update methods remain source-compatible.

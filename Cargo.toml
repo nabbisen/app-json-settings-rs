@@ -1,15 +1,15 @@
 [package]
 name = "app-json-settings"
 version = "2.1.0"
-edition = "2024"
-
 description = "App settings as JSON format stored in file and available via read-by-key and write-by-key. Aims a tiny settings manager with reasonably few dependencies."
-authors = ["nabbisen"]
-license = "Apache-2.0"
 
+edition = "2024"
+rust-version = "1.85.0"
+license = "Apache-2.0"
+authors = ["nabbisen"]
+repository = "https://github.com/nabbisen/app-json-settings-rs"
 categories = ["config"]
 keywords = ["json", "serde", "utility", "file"]
-rust-version = "1.85.0"
 
 [features]
 default = []

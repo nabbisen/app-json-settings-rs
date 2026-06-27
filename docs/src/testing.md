@@ -26,3 +26,13 @@ The crate's own tests cover:
 
 The default build should also be tested with no features so the optional UWP
 support does not become an accidental default dependency.
+
+
+Executable examples should stay compile-checked in CI:
+
+```sh
+cargo test --examples
+```
+
+Examples should avoid writing to real user application data paths. Prefer
+caller-provided temporary roots inside examples so users can run them safely.

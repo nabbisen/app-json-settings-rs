@@ -20,12 +20,20 @@ Status: implemented in v2.3.0.
 * Defined overwrite and replacement behavior on Windows, macOS, and Unix.
 * Added reliability-oriented tests around save mode and temporary-file cleanup.
 
-## v2.4.x — Candidate follow-ups
+## v2.4.x — Minimal executable examples
+
+Status: implemented in v2.4.0.
+
+* Added three runnable Cargo example targets.
+* Added an examples documentation page.
+* Added example compile-checking to CI.
+
+## v2.5.x — Candidate follow-ups
 
 Status: planned.
 
 * Consider recovery guidance for externally corrupted settings files.
-* Add GUI-framework examples if they remain small and dependency-light.
+* Add GUI-framework examples only if they remain small and dependency-light.
 * Review docs.rs examples and doctest coverage.
 
 ## Later candidates

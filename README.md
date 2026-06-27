@@ -73,12 +73,23 @@ fn main() -> app_json_settings::Result<()> {
 * `with_filename()` remains available for v2.x compatibility.
 * The optional `uwp` feature enables `at_uwp_local_folder()` on Windows.
 
+## Examples
+
+A small executable example set is available under `examples/`:
+
+```sh
+cargo run --example basic
+cargo run --example custom_root
+cargo run --example update
+```
+
 ## More detail
 
 Full documentation is maintained under `docs/src` and can be read with mdBook.
 Start with:
 
 * `docs/src/quick-start.md`
+* `docs/src/examples.md`
 * `docs/src/storage-model.md`
 * `docs/src/save-behavior.md`
 * `docs/src/platform-behavior.md`

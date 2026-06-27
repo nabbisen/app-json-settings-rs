@@ -47,3 +47,14 @@ let manager = ConfigManager::<Settings>::new()
     .with_root_dir("./portable-config")
     .try_with_filename("settings.json")?;
 ```
+
+
+## Executable examples
+
+For complete runnable files, see the Cargo examples:
+
+```sh
+cargo run --example basic
+cargo run --example custom_root
+cargo run --example update
+```

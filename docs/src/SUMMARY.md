@@ -2,6 +2,7 @@
 
 - [Introduction](introduction.md)
 - [Quick start](quick-start.md)
+- [Executable examples](examples.md)
 - [Storage model](storage-model.md)
 - [Save behavior](save-behavior.md)
 - [API guide](api-guide.md)

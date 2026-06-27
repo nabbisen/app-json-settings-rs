@@ -1,5 +1,26 @@
 # Changelog
 
+## 2.4.0
+
+### Added
+
+* Added executable Cargo examples: `basic`, `custom_root`, and `update`.
+* Added `examples/README.md`.
+* Added `docs/src/examples.md`.
+* Added `cargo test --examples` to CI.
+* Added RFC 026 for the minimal executable example set.
+
+### Changed
+
+* Bumped crate version to `2.4.0`.
+* Updated README, quick-start, testing, and roadmap documentation to reference the runnable examples.
+
+### Compatibility
+
+* No public API changes.
+* No dependency changes.
+* Default build still does not depend on the `windows` crate.
+
 ## 2.3.0
 
 ### Added

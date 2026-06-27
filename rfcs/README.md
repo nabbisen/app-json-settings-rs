@@ -16,6 +16,7 @@ No proposed RFCs at this time.
 | 023 | [Test coverage and public API validation](./done/023-test-coverage-and-public-api-validation.md) | v2.2.0 |
 | 024 | [Save reliability and atomic write policy](./done/024-save-reliability-and-atomic-write-policy.md) | v2.3.0 |
 | 025 | [Path safety and explicit app identity](./done/025-path-safety-and-explicit-app-identity.md) | v2.2.0 |
+| 026 | [Minimal executable examples](./done/026-minimal-executable-examples.md) | v2.4.0 |
 
 ## Archive
 

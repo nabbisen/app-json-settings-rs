@@ -19,6 +19,8 @@ jobs:
         run: cargo test
       - name: Test no default features
         run: cargo test --no-default-features
+      - name: Test executable examples
+        run: cargo test --examples
       - name: Test documentation examples
         run: cargo test --doc
       - name: Check RFC integrity

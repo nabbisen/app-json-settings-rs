@@ -55,7 +55,7 @@ pub fn uwp_local_folder_dir() -> Result<PathBuf> {
 
 #[cfg(all(windows, feature = "uwp"))]
 fn platform_error(error: windows::core::Error) -> ConfigError {
-    ConfigError::Platform(error.message().to_string_lossy())
+    ConfigError::Platform(error.message())
 }
 
 #[cfg(any(target_os = "macos", all(unix, not(target_os = "macos"))))]

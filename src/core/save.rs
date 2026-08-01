@@ -6,6 +6,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::Result;
 
+#[cfg(windows)]
+use std::os::windows::ffi::OsStrExt;
+
 static TEMP_FILE_COUNTER: AtomicU64 = AtomicU64::new(0);
 
 #[cfg(windows)]
@@ -115,8 +118,6 @@ fn replace_file(temp_path: &Path, target_path: &Path) -> io::Result<()> {
 
 #[cfg(windows)]
 fn replace_file(temp_path: &Path, target_path: &Path) -> io::Result<()> {
-    use std::os::windows::ffi::OsStrExt;
-
     const MOVEFILE_REPLACE_EXISTING: u32 = 0x0000_0001;
     const MOVEFILE_WRITE_THROUGH: u32 = 0x0000_0008;
 

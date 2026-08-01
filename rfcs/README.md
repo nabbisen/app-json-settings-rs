@@ -4,7 +4,10 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No proposed RFCs at this time.
+| ID | Title | Priority |
+|---:|---|---|
+| 027 | [Windows build correctness](./proposed/027-windows-build-correctness.md) | P0 |
+| 028 | [Release verification gate](./proposed/028-release-verification-gate.md) | P0 |
 
 ## Implemented
 

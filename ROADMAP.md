@@ -106,6 +106,7 @@ introduced or left undefined.
 |---:|---|---|---|
 | 029 | Permission and ownership preservation on atomic save | P1 | 027 |
 | 030 | Concurrency contract for load, save, and update | P1 | — |
+| 033 | RFC status check correctness | P1 | 028 |
 | 031 | Recovery guidance for externally corrupted settings files | P2 | — |
 
 * RFC 029 addresses atomic replacement discarding the previous file's mode. A
@@ -118,6 +119,10 @@ introduced or left undefined.
   last-writer-wins, which is defensible but must be stated rather than implied.
 * RFC 031 covers the existing candidate: what an application should do when the
   settings file exists but is not valid JSON.
+* RFC 033 fixes two defects in the RFC integrity script's status check, found
+  during the 2.4.1 review. The check silently passes for any RFC whose body
+  quotes a Status line, and rejects every genuinely withdrawn or superseded RFC.
+  Both predate RFC 028; neither affects crate behavior.
 
 **Version note.** RFC 029 changes observable file-permission behavior. It is a
 minor release, not a patch.

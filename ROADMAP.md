@@ -43,11 +43,9 @@ Status: implemented in v2.4.0.
 * Added an examples documentation page.
 * Added example compile-checking to CI.
 
-## Planned
-
 ### M1 — v2.4.1 — Platform correctness and release-gate restoration
 
-Status: planned. Priority: **P0**. Sequence: next release, before all other work.
+Status: implemented in v2.4.1. Priority: **P0**.
 
 **Objective.** Restore a crate that builds on every platform it documents, and
 restore a verification gate that would have caught the failure.
@@ -85,6 +83,17 @@ first within the release even though the two RFCs are otherwise independent.
 **Post-release action.** Notify the downstream dependent that reported the
 Windows build failure once 2.4.1 is published, and invite verification against
 it. The reply is deliberately held until release rather than sent on scoping.
+
+**Evidence.** RFC 028's platform matrix landed first and observed the Windows
+job red
+([run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30699271396)),
+matching D1-D3. RFC 027 then landed and the same job went green
+([run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30699425111)).
+RFC 028's remaining slices (B-D) landed after, and a full CI run was observed
+green on every job
+([run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30700304434)).
+
+## Planned
 
 ### M2 — v2.5.0 — Durability and safety hardening
 

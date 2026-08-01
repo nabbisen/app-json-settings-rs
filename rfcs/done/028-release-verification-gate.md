@@ -1,6 +1,6 @@
 # RFC 028 — Release verification gate
 
-**Status.** Proposed
+**Status.** Implemented (v2.4.1)
 **Tracks.** CI coverage, RFC integrity tooling, and completion discipline.
 **Touches.** `.github/workflows/ci.yml`, `scripts/check-rfcs.sh`, `rfcs/archive/`, `docs/src/maintainer-notes.md`.
 **Handoff.** [implementation handoff](../handoffs/028-release-verification-gate/implementation-handoff.md)

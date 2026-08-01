@@ -4,10 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 027 | [Windows build correctness](./proposed/027-windows-build-correctness.md) | P0 |
-| 028 | [Release verification gate](./proposed/028-release-verification-gate.md) | P0 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -20,6 +17,8 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 024 | [Save reliability and atomic write policy](./done/024-save-reliability-and-atomic-write-policy.md) | v2.3.0 |
 | 025 | [Path safety and explicit app identity](./done/025-path-safety-and-explicit-app-identity.md) | v2.2.0 |
 | 026 | [Minimal executable examples](./done/026-minimal-executable-examples.md) | v2.4.0 |
+| 027 | [Windows build correctness](./done/027-windows-build-correctness.md) | v2.4.1 |
+| 028 | [Release verification gate](./done/028-release-verification-gate.md) | v2.4.1 |
 
 ## Archive
 

@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.4.1
+
+### Fixed
+
+* Fixed a default-build compile failure on every Windows target: a
+  function-local `use std::os::windows::ffi::OsStrExt` did not extend to the
+  sibling function that needed it. The import is now hoisted to module scope
+  in `src/core/save.rs`. This affected the published 2.3.0 and 2.4.0 crates.
+* Fixed two compile failures in the optional `uwp` feature on Windows: added
+  the `Storage_Search` cargo feature required by `ApplicationData::LocalFolder()`,
+  and adjusted `src/core/dir.rs` for `windows-result` 0.2's `Error::message()`
+  returning `String` directly. The `uwp` feature now **compiles**; its runtime
+  behavior against a real UWP application container remains **untested**, since
+  CI cannot host one.
+
+### Changed
+
+* CI now runs the real check set (clippy, default/no-default-feature/example/doc
+  tests) as a matrix across Linux, macOS, and Windows, instead of Linux only.
+* `scripts/check-rfcs.sh` now treats an absent `rfcs/<state>` directory as
+  empty instead of failing. Every CI run since the workflow was introduced in
+  2.2.0 had failed on this check in a fresh checkout, because git does not
+  track the empty `rfcs/archive/` directory.
+* Added a CI job that verifies the crate builds under the declared MSRV
+  (Rust 1.85.0).
+* Added a written completion rule to `docs/src/maintainer-notes.md`: an RFC
+  does not move to `rfcs/done/` while the release gate for its change is red.
+* Added RFC 027 and RFC 028 to track this release.
+
+### Compatibility
+
+* No public API change.
+* No dependency-set change. `Storage_Search` is a feature of the already-optional
+  `windows` dependency.
+* No persistence-format change.
+* Applications on non-Windows platforms see no behavior difference. Applications
+  on Windows go from "does not build" to "builds."
+
 ## 2.4.0
 
 ### Added

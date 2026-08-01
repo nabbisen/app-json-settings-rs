@@ -1,6 +1,6 @@
 # RFC 027 — Windows build correctness
 
-**Status.** Proposed
+**Status.** Implemented (v2.4.1)
 **Tracks.** Platform correctness for the documented Windows target.
 **Touches.** `src/core/save.rs`, `src/core/dir.rs`, `Cargo.toml`.
 **Handoff.** [implementation handoff](../handoffs/027-windows-build-correctness/implementation-handoff.md)

@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 028 Release verification gate
 
-**Governing RFC.** [RFC 028](../../proposed/028-release-verification-gate.md)
-**Status.** Inherited from RFC 028 (Proposed).
+**Governing RFC.** [RFC 028](../../done/028-release-verification-gate.md)
+**Status.** Inherited from RFC 028 (Implemented, v2.4.1).
 **Milestone.** M1 — release 2.4.1.
 
 ## Purpose

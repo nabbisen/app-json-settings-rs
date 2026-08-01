@@ -45,3 +45,14 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Check optional UWP feature compiles
         run: cargo check --features uwp
+
+  msrv:
+    name: MSRV (1.85.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.85.0
+      - name: Check MSRV compiles
+        run: cargo check
+      - name: Check MSRV compiles (all targets)
+        run: cargo check --all-targets

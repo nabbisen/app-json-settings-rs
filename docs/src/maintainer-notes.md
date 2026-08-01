@@ -7,15 +7,41 @@ The project follows a small RFC lifecycle policy under `rfcs/`.
 * Withdrawn or superseded RFCs live in `rfcs/archive/`.
 * Optional handoffs live under `rfcs/handoffs/NNN-slug/` and inherit the RFC's state.
 
-Before release:
+## Completion rule
+
+An RFC does not move to `rfcs/done/` while the release gate for its change is
+red. If the gate cannot be made green, the RFC stays in `proposed/` and the
+blocking failure is recorded in it. A checklist item is marked complete only
+against a run that was actually observed, not against an expected result.
+
+## Release gate
+
+The CI workflow runs the following on every push:
+
+* On Linux, macOS, and Windows: `cargo clippy --all-targets -- -D warnings`,
+  `cargo test`, `cargo test --no-default-features`, `cargo test --examples`,
+  and `cargo test --doc`.
+* On Linux only: `cargo fmt --check` and `scripts/check-rfcs.sh`. Formatting
+  and RFC integrity are platform-independent, so running them once is enough.
+* On Windows only: `cargo check --features uwp`, since the optional `uwp`
+  feature is Windows-specific.
+* Pinned to the declared MSRV (`rust-version` in `Cargo.toml`): `cargo check`
+  and `cargo check --all-targets`.
+
+Before release, run the same set locally:
 
 ```text
 cargo fmt --check
 cargo clippy --all-targets -- -D warnings
 cargo test
 cargo test --no-default-features
+cargo test --examples
 cargo test --doc
 scripts/check-rfcs.sh
 ```
 
-For Windows UWP support, also run a Windows check with the `uwp` feature.
+For Windows UWP support, also run a Windows check with the `uwp` feature. This
+crate's platform-specific behavior lives in code that only builds under
+`cfg(windows)` or `cfg(unix)`; cross-compilation checks compilation but not
+runtime behavior, so the CI matrix running tests on each target platform is
+the authoritative signal, not a local cross-compile.

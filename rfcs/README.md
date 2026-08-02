@@ -4,7 +4,11 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No proposed RFCs at this time.
+| ID | Title | Priority |
+|---:|---|---|
+| 029 | [Permission preservation on atomic save](./proposed/029-permission-preservation-on-atomic-save.md) | P1 |
+| 030 | [Operational contract: concurrency and corrupted files](./proposed/030-operational-contract-concurrency-and-corruption.md) | P1 |
+| 034 | [Explicit storage root resolution failure](./proposed/034-explicit-storage-root-resolution.md) | P1 |
 
 ## Implemented
 

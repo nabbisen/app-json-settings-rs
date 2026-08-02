@@ -102,30 +102,47 @@ Status: planned. Priority: **P1**. Sequence: after M1.
 **Objective.** Close the reliability and safety gaps that the atomic-save work
 introduced or left undefined.
 
-| RFC | Title | Priority | Depends on |
-|---:|---|---|---|
-| 029 | Permission and ownership preservation on atomic save | P1 | 027 |
-| 030 | Concurrency contract for load, save, and update | P1 | — |
-| 033 | RFC status check correctness | P1 | 028 |
-| 031 | Recovery guidance for externally corrupted settings files | P2 | — |
+| RFC | Title | Priority | Depends on | Status |
+|---:|---|---|---|---|
+| 033 | RFC status check correctness | P1 | 028 | **Landed on `main`** |
+| 029 | Permission preservation on atomic save | P1 | 024, 027 | Proposed |
+| 030 | Operational contract: concurrency and corrupted files | P1 | — | Proposed |
+| 034 | Explicit storage root resolution failure | P1 | — | Proposed |
 
 * RFC 029 addresses atomic replacement discarding the previous file's mode. A
   settings file at `0600` becomes umask-default after the first atomic save, and
   the temporary file is readable by others while being written. This is a
   regression against v2.2 direct-write behavior for applications whose settings
   hold credentials.
-* RFC 030 defines and documents what happens when two processes update the same
-  settings file. The current behavior is unlocked read-modify-write with
-  last-writer-wins, which is defensible but must be stated rather than implied.
-* RFC 031 covers the existing candidate: what an application should do when the
-  settings file exists but is not valid JSON.
-* RFC 033 fixes two defects in the RFC integrity script's status check, found
-  during the 2.4.1 review. The check silently passes for any RFC whose body
-  quotes a Status line, and rejects every genuinely withdrawn or superseded RFC.
-  Both predate RFC 028; neither affects crate behavior.
+* RFC 030 documents two behaviors the crate already has but has never stated:
+  concurrent writes (unlocked read-modify-write, last-writer-wins, but atomic
+  save does guarantee no torn reads), and what happens when the settings file
+  exists but is not valid JSON. Documentation only. It absorbs the scope
+  originally sketched as RFC 031; that number was a roadmap placeholder, no file
+  was ever created for it, and it is retired unused.
+* RFC 034 makes storage-root resolution failure explicit. `for_app()` returns
+  `Result`, but that `Result` reports only an invalid app name — when `HOME` or
+  `%APPDATA%` cannot be resolved the crate silently substitutes a relative path.
+  Careful error handling therefore looks complete while the failure passes
+  through. Fixed by making the existing `Result` carry the information callers
+  already assume it carries.
+* RFC 033 fixed two defects in the RFC integrity script's status check, found
+  during the 2.4.1 review. The check silently passed for any RFC whose body
+  quoted a Status line, and rejected every genuinely withdrawn or superseded RFC.
+  Both predated RFC 028; neither affected crate behavior. **Landed on `main`
+  (`f7c8205`, `ca60a5c`); tooling-only, so it carries no crate version.** It was
+  a prerequisite for archiving any RFC — until it landed, the gate rejected
+  correct withdrawals.
 
-**Version note.** RFC 029 changes observable file-permission behavior. It is a
-minor release, not a patch.
+**Version note.** RFCs 029 and 034 both change observable behavior — file
+permissions and storage-root failure reporting respectively. M2 is a minor
+release, not a patch, and both need release notes and a migration section for
+applications already pinned to 2.4.x.
+
+**Open decision inside RFC 029.** When no settings file exists yet, a newly
+created file gets either `0600` (recommended) or the umask default (`0644`
+typically, matching today). This is recorded in the RFC as a decision for the
+project owner, not an implementation detail.
 
 ### M3 — v2.6.0 — Documentation and API completeness
 

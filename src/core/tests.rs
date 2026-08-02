@@ -234,6 +234,130 @@ fn atomic_save_does_not_leave_temp_file_after_success() {
     );
 }
 
+#[cfg(unix)]
+#[test]
+fn atomic_save_preserves_existing_mode_0600() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-preserve-0600");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o600))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o600, "mode was {mode:o}, expected preserved 0o600");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_preserves_existing_mode_0644() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-preserve-0644");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o644))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o644, "mode was {mode:o}, expected preserved 0o644");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_creates_new_file_owner_only() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-new-file");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 3,
+            enabled: true,
+        })
+        .expect("save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o600, "new file mode was {mode:o}, expected 0o600");
+}
+
+#[cfg(unix)]
+#[test]
+fn direct_save_mode_behavior_is_unchanged() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-direct-save");
+    let manager = ConfigManager::<TestSettings>::new()
+        .with_root_dir(&dir)
+        .with_direct_save();
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o600))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(
+        mode, 0o600,
+        "direct save should still preserve existing mode; was {mode:o}"
+    );
+}
+
 #[derive(Debug, Deserialize)]
 struct FailingSerializeSettings;
 

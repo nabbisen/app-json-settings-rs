@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.5.0
+
+### Changed
+
+* Atomic save now preserves an existing settings file's Unix permission bits
+  across replacement, instead of the replaced file silently taking on a
+  umask-derived mode. A file the application or user had restricted to
+  `0600` no longer becomes `0644`-typical on the next save.
+* Newly created settings files are created `0600` on Unix. Existing files are
+  unaffected — preservation keeps whatever mode they already have; this only
+  changes the default for files that do not exist yet.
+* The temporary file used during atomic save is now created owner-only
+  (`0600`) from the start, so its content is never briefly readable by other
+  local users while it is being written.
+* Applying an existing file's mode to the temporary file is best-effort: on
+  filesystems that do not model permission bits (FAT, some network mounts),
+  the file stays at the safer `0600` rather than falling back to a more
+  permissive default.
+* Windows and `SaveMode::Direct` are unchanged. See
+  `docs/src/platform-behavior.md` for why Windows needs no equivalent change,
+  and note that reasoning has not been verified empirically against a real
+  Windows security descriptor.
+
+This closes a permission-preservation regression introduced when
+`SaveMode::Atomic` became the default in v2.3.0 (RFC 024); see RFC 029. It
+does not make the crate a secret store — applications with real
+secret-handling requirements should continue to use a platform keychain.
+
+### Compatibility
+
+* No public API change, no new dependency, no `unsafe` added.
+* Behavior change on Unix only, confined to file creation and to files that
+  already had their previous mode overwritten by a prior atomic save. Minor
+  release, not a patch.
+
 ## 2.4.1
 
 ### Fixed

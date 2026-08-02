@@ -27,6 +27,30 @@ Atomic save uses this sequence:
 This avoids exposing a partially written final settings file if the process stops
 while writing the new JSON content.
 
+## Permissions on Unix
+
+Since v2.5.0, atomic save preserves the existing settings file's permission
+bits on Unix, and the temporary file is created owner-only (`0600`) so its
+content is never briefly readable by other local users while it is being
+written.
+
+* If the target file already exists, its mode is applied to the temporary
+  file before the replace step.
+* If no target file exists yet, the new file keeps the `0600` it was created
+  with.
+* Applying the target's mode is best-effort and fail-secure: if reading or
+  applying the mode fails (for example, on a filesystem that does not model
+  permission bits, such as FAT or some network mounts), the file stays at
+  `0600` rather than falling back to a more permissive default. The result is
+  never more permissive than intended, only possibly more restrictive.
+* **Group-shared caveat.** A settings file under a shared `with_root_dir()`
+  path is created owner-only on first save. This only bites once — running
+  `chmod g+r` on the file after creation fixes it permanently, because every
+  later save preserves whatever mode the file already has.
+
+This does not make the crate a secret store. Applications with real
+secret-handling requirements should use a platform keychain.
+
 ## Direct save
 
 Direct save is still available:

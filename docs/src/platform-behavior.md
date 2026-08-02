@@ -31,3 +31,17 @@ platform-specific dependencies they do not need.
   write-through flags.
 * Other targets do not claim replacement of an existing file as atomic. Use
   `SaveMode::Direct` unless a target-specific replacement implementation is added.
+
+## File permissions
+
+Since v2.5.0, atomic save preserves the existing settings file's permission
+bits on Unix and creates new files owner-only (`0600`). See
+[Save behavior](save-behavior.md#permissions-on-unix) for the details.
+
+**Windows is unchanged.** Windows access control uses security descriptors
+rather than mode bits, and per-user `%APPDATA%` is already restricted to that
+user by directory ACL inheritance; the temporary file is created in that same
+directory and inherits the same protection. This reasoning follows from the
+documented Windows inheritance model — **it has not been verified empirically
+against a real Windows security descriptor**, and should not be read as a
+measured claim.

@@ -6,6 +6,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::Result;
 
+#[cfg(unix)]
+use std::os::unix::fs::OpenOptionsExt;
 #[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
 
@@ -59,6 +61,9 @@ fn save_atomic(path: &Path, content: &str) -> Result<()> {
         temp_file.sync_all()?;
         drop(temp_file);
 
+        #[cfg(unix)]
+        apply_target_mode(&temp_path, path);
+
         replace_file(&temp_path, path)?;
         sync_parent_dir(path);
         Ok(())
@@ -70,6 +75,21 @@ fn save_atomic(path: &Path, content: &str) -> Result<()> {
 
     result?;
     Ok(())
+}
+
+/// Applies the existing target file's permission bits to the temporary file,
+/// on Unix, before the temporary file replaces it.
+///
+/// Best-effort and deliberately silent on failure: the temporary file was
+/// already created at `0600` (see [`create_temp_file`]), so any failure here
+/// leaves the result more restrictive than intended, never less. Filesystems
+/// that do not model permission bits (FAT, some network mounts) are expected
+/// to fail here; that is not a save failure.
+#[cfg(unix)]
+fn apply_target_mode(temp_path: &Path, target_path: &Path) {
+    if let Ok(metadata) = fs::metadata(target_path) {
+        let _ = fs::set_permissions(temp_path, metadata.permissions());
+    }
 }
 
 fn create_temp_file(target: &Path) -> io::Result<(PathBuf, File)> {
@@ -94,11 +114,16 @@ fn create_temp_file(target: &Path) -> io::Result<(PathBuf, File)> {
         );
         let temp_path = parent.join(temp_name);
 
-        match OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&temp_path)
-        {
+        let mut open_options = OpenOptions::new();
+        open_options.write(true).create_new(true);
+        // Owner-only from creation, so the content is never briefly readable
+        // by other local users while it is being written. On non-Unix
+        // targets this has no effect; final-file permissions on Unix are
+        // applied separately in `apply_target_mode` / `save_atomic`.
+        #[cfg(unix)]
+        open_options.mode(0o600);
+
+        match open_options.open(&temp_path) {
             Ok(file) => return Ok((temp_path, file)),
             Err(error) if error.kind() == io::ErrorKind::AlreadyExists => continue,
             Err(error) => return Err(error),
@@ -171,3 +196,6 @@ fn sync_parent_dir(path: &Path) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests;

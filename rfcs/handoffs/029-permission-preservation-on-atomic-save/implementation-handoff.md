@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 029 Permission preservation on atomic save
 
-**Governing RFC.** [RFC 029](../../proposed/029-permission-preservation-on-atomic-save.md)
-**Status.** Inherited from RFC 029 (Proposed).
+**Governing RFC.** [RFC 029](../../done/029-permission-preservation-on-atomic-save.md)
+**Status.** Inherited from RFC 029 (Implemented, v2.5.0).
 **Milestone.** M2 — release 2.5.0.
 **Implementation order.** First of three. See "Sequencing" below.
 

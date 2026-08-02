@@ -1,6 +1,6 @@
 # RFC 029 — Permission preservation on atomic save
 
-**Status.** Proposed
+**Status.** Implemented (v2.5.0)
 **Tracks.** Durability and safety of the default save path.
 **Touches.** `src/core/save.rs`, `src/core/tests.rs`, `docs/src/save-behavior.md`, `docs/src/platform-behavior.md`, `CHANGELOG.md`.
 **Amends.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md)

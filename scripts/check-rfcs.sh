@@ -4,6 +4,11 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$root"
 
+if [[ ! -d rfcs ]]; then
+  echo "missing RFC tree: rfcs/" >&2
+  exit 1
+fi
+
 # Git does not track empty directories, so a state directory with no RFCs in
 # it yet (most commonly rfcs/archive) will not exist in a fresh clone. That is
 # a legitimate condition, not an error: treat an absent state directory as an
@@ -31,11 +36,16 @@ while IFS= read -r file; do
   case "$file" in
     rfcs/proposed/*) expected="Proposed" ;;
     rfcs/done/*) expected="Implemented" ;;
-    rfcs/archive/*) expected="Withdrawn\|Superseded" ;;
+    rfcs/archive/*) expected="Withdrawn|Superseded" ;;
     *) continue ;;
   esac
 
-  if ! grep -Eq "^\*\*Status\.\*\* ($expected)" "$file"; then
+  # Consult only the file's real frontmatter Status line, not the whole body.
+  # RFCs that discuss the Status convention (e.g. RFC 000) may quote
+  # **Status.** lines as prose examples later in the file; those must not
+  # satisfy this check.
+  status_line="$(grep -m1 -E '^\*\*Status\.\*\* ' "$file" || true)"
+  if [[ -z "$status_line" ]] || ! grep -Eq "^\*\*Status\.\*\* ($expected)" <<<"$status_line"; then
     echo "RFC status does not match folder: $file" >&2
     exit 1
   fi

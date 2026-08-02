@@ -1,6 +1,6 @@
 # RFC 033 — RFC status check correctness
 
-**Status.** Proposed
+**Status.** Implemented
 **Tracks.** Correctness of the RFC integrity script's status invariant.
 **Touches.** `scripts/check-rfcs.sh`, `rfcs/archive/` (test fixture only, not retained).
 **Handoff.** [implementation handoff](../handoffs/033-rfc-status-check-correctness/implementation-handoff.md)

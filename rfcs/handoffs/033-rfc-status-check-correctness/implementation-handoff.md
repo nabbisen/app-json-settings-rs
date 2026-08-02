@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 033 RFC status check correctness
 
-**Governing RFC.** [RFC 033](../../proposed/033-rfc-status-check-correctness.md)
-**Status.** Inherited from RFC 033 (Proposed).
+**Governing RFC.** [RFC 033](../../done/033-rfc-status-check-correctness.md)
+**Status.** Inherited from RFC 033 (Implemented).
 **Milestone.** M2 — release 2.5.0.
 
 ## Purpose

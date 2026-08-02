@@ -4,9 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 033 | [RFC status check correctness](./proposed/033-rfc-status-check-correctness.md) | P1 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -21,6 +19,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 026 | [Minimal executable examples](./done/026-minimal-executable-examples.md) | v2.4.0 |
 | 027 | [Windows build correctness](./done/027-windows-build-correctness.md) | v2.4.1 |
 | 028 | [Release verification gate](./done/028-release-verification-gate.md) | v2.4.1 |
+| 033 | [RFC status check correctness](./done/033-rfc-status-check-correctness.md) | main (no crate release yet) |
 
 ## Archive
 

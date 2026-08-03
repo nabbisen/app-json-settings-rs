@@ -1,6 +1,6 @@
 # RFC 035 — Documentation currency and recovery example
 
-**Status.** Proposed
+**Status.** Implemented
 **Tracks.** Accuracy of user-facing documentation, and example coverage of failure paths.
 **Touches.** `README.md`, `docs/src/testing.md`, `docs/src/error-handling.md`, `docs/src/examples.md`, `examples/`.
 **Amends.** [RFC 026](../done/026-minimal-executable-examples.md) — the example maintenance rule.

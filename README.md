@@ -88,6 +88,7 @@ A small executable example set is available under `examples/`:
 cargo run --example basic
 cargo run --example custom_root
 cargo run --example update
+cargo run --example recovery
 ```
 
 ## More detail

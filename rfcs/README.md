@@ -23,7 +23,7 @@ No proposed RFCs at this time.
 | 030 | [Operational contract: concurrency and corrupted files](./done/030-operational-contract-concurrency-and-corruption.md) | 2.5.0 |
 | 033 | [RFC status check correctness](./done/033-rfc-status-check-correctness.md) | main |
 | 034 | [Explicit storage root resolution failure](./done/034-explicit-storage-root-resolution.md) | 2.5.0 |
-| 035 | [Documentation currency and recovery example](./done/035-documentation-currency-and-recovery-example.md) | main |
+| 035 | [Documentation currency and recovery example](./done/035-documentation-currency-and-recovery-example.md) | main (provisional — update to the M3 release version when it ships) |
 
 ## Archive
 

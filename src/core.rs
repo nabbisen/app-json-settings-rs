@@ -58,14 +58,19 @@ where
     /// should use [`with_root_dir`](Self::with_root_dir) or the optional
     /// `uwp` feature instead.
     ///
-    /// For production applications, prefer [`for_app`](Self::for_app) because
-    /// it uses an explicit stable application identity instead of deriving one
-    /// from the executable file name.
+    /// This constructor cannot report storage-root resolution failure without
+    /// an API break, so it falls back to the current directory when the
+    /// platform configuration directory cannot be determined (for example, no
+    /// `HOME` or `%APPDATA%` in the environment). For production applications,
+    /// prefer [`for_app`](Self::for_app): it uses an explicit stable
+    /// application identity instead of deriving one from the executable file
+    /// name, and it reports resolution failure instead of silently falling
+    /// back.
     pub fn new() -> Self {
-        Self::from_parts(
-            default_config_dir().join(default_runtime_app_name()),
-            DEFAULT_FILE_NAME,
-        )
+        let folder_path = default_config_dir()
+            .unwrap_or_else(|_| PathBuf::from("."))
+            .join(default_runtime_app_name());
+        Self::from_parts(folder_path, DEFAULT_FILE_NAME)
     }
 
     /// Creates a config manager for an explicit application name.
@@ -73,12 +78,16 @@ where
     /// This is the recommended desktop constructor for production apps because
     /// the storage directory is stable even if the executable file name changes.
     /// The `app_name` must be a single safe path component, not a path.
+    ///
+    /// Returns [`ConfigError::Platform`] if the platform configuration
+    /// directory cannot be resolved (for example, no `HOME` or `%APPDATA%` in
+    /// the environment). Applications that hit this in practice — typically
+    /// services or containers without a user environment — should supply a
+    /// path explicitly with [`with_root_dir`](Self::with_root_dir) instead.
     pub fn for_app(app_name: &str) -> Result<Self> {
         let app_name = validate_path_component(app_name)?;
-        Ok(Self::from_parts(
-            default_config_dir().join(app_name),
-            DEFAULT_FILE_NAME,
-        ))
+        let folder_path = default_config_dir()?.join(app_name);
+        Ok(Self::from_parts(folder_path, DEFAULT_FILE_NAME))
     }
 
     fn from_parts<P>(folder_path: P, file_name: &str) -> Self
@@ -95,6 +104,12 @@ where
     }
 
     /// Stores the settings file in the current working directory.
+    ///
+    /// If the current working directory cannot be determined, falls back to
+    /// `"."`. Unlike [`for_app`](Self::for_app), this fallback is not
+    /// surprising here: the caller explicitly asked for working-directory
+    /// storage, and `"."` already means "the working directory" to the
+    /// filesystem.
     pub fn at_current_dir(mut self) -> Self {
         self.folder_path = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
         self

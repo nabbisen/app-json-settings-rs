@@ -22,11 +22,26 @@
   `docs/src/platform-behavior.md` for why Windows needs no equivalent change,
   and note that reasoning has not been verified empirically against a real
   Windows security descriptor.
+* `ConfigManager::for_app()` now reports storage-root resolution failure
+  instead of silently substituting a relative path. Previously, if the
+  platform configuration directory could not be determined (no `HOME` on
+  Unix/macOS, no `%APPDATA%` on Windows), `for_app()` would succeed anyway and
+  quietly write settings under the current working directory. It now returns
+  `Err(ConfigError::Platform(_))`, naming the missing variable. See
+  `docs/src/migration-v2.md` for who is affected and how to adapt.
+* `ConfigManager::new()` is unaffected by the above — it keeps falling back to
+  the current directory, since it cannot report an error without an API
+  break. Its fallback is now implemented explicitly rather than incidentally.
 
 This closes a permission-preservation regression introduced when
 `SaveMode::Atomic` became the default in v2.3.0 (RFC 024); see RFC 029. It
 does not make the crate a secret store — applications with real
 secret-handling requirements should continue to use a platform keychain.
+
+`for_app()`'s new error reporting closes a "false coverage" gap: applications
+that already handle `for_app()`'s `Result` were not actually covering
+storage-root resolution failure, because that `Result` never carried it. See
+RFC 034.
 
 ### Compatibility
 
@@ -35,6 +50,11 @@ secret-handling requirements should continue to use a platform keychain.
   `0600`, and existing files whose mode differs from the umask default, which
   now keep that mode instead of losing it on the next save. Files already
   sitting at the umask default are unaffected. Minor release, not a patch.
+* `for_app()`'s signature is unchanged; only environments where platform
+  resolution was already effectively broken (silently writing under `$CWD`)
+  see a behavior difference, and that difference is surfacing an error where
+  none was reported before. `with_root_dir()` remains the documented escape
+  hatch and is unaffected. Minor release, not a patch.
 
 ## 2.4.1
 

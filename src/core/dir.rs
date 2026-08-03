@@ -1,34 +1,67 @@
+use std::ffi::OsString;
 use std::path::PathBuf;
 
-#[cfg(all(windows, feature = "uwp"))]
 use crate::{ConfigError, Result};
 
-pub fn default_config_dir() -> PathBuf {
+/// Resolves the platform configuration base directory from an environment
+/// lookup function.
+///
+/// This is a pure, testable seam: the public-facing [`default_config_dir`]
+/// supplies the real environment via `std::env::var_os`. Tests supply a stub
+/// instead of mutating process environment variables, which is `unsafe` in
+/// this edition and would race the parallel test harness across the CI
+/// matrix.
+fn config_dir_from(getenv: impl Fn(&str) -> Option<OsString>) -> Result<PathBuf> {
     #[cfg(target_os = "windows")]
     {
-        std::env::var_os("APPDATA")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from("."))
+        getenv("APPDATA").map(PathBuf::from).ok_or_else(|| {
+            ConfigError::Platform(
+                "could not resolve the platform configuration directory: %APPDATA% is not \
+                 set; use with_root_dir() to supply a path explicitly"
+                    .to_string(),
+            )
+        })
     }
 
     #[cfg(target_os = "macos")]
     {
-        let mut p = home_dir();
-        p.push("Library");
-        p.push("Application Support");
-        p
+        getenv("HOME")
+            .map(|home| {
+                let mut p = PathBuf::from(home);
+                p.push("Library");
+                p.push("Application Support");
+                p
+            })
+            .ok_or_else(|| {
+                ConfigError::Platform(
+                    "could not resolve the platform configuration directory: HOME is not \
+                     set; use with_root_dir() to supply a path explicitly"
+                        .to_string(),
+                )
+            })
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        if let Some(xdg) = std::env::var_os("XDG_CONFIG_HOME") {
-            PathBuf::from(xdg)
-        } else {
-            let mut p = home_dir();
+        if let Some(xdg) = getenv("XDG_CONFIG_HOME") {
+            Ok(PathBuf::from(xdg))
+        } else if let Some(home) = getenv("HOME") {
+            let mut p = PathBuf::from(home);
             p.push(".config");
-            p
+            Ok(p)
+        } else {
+            Err(ConfigError::Platform(
+                "could not resolve the platform configuration directory: neither \
+                 XDG_CONFIG_HOME nor HOME is set; use with_root_dir() to supply a path \
+                 explicitly"
+                    .to_string(),
+            ))
         }
     }
+}
+
+pub fn default_config_dir() -> Result<PathBuf> {
+    config_dir_from(|name| std::env::var_os(name))
 }
 
 pub fn default_runtime_app_name() -> String {
@@ -58,9 +91,5 @@ fn platform_error(error: windows::core::Error) -> ConfigError {
     ConfigError::Platform(error.message())
 }
 
-#[cfg(any(target_os = "macos", all(unix, not(target_os = "macos"))))]
-pub fn home_dir() -> PathBuf {
-    std::env::var_os("HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("."))
-}
+#[cfg(test)]
+mod tests;

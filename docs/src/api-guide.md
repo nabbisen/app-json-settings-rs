@@ -12,6 +12,11 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?;
 
 The app name must be a safe single path component.
 
+Since v2.5.0, this constructor also reports when the platform configuration
+directory itself cannot be resolved (for example, no `HOME` or `%APPDATA%` in
+the environment), returning `ConfigError::Platform`. This is the constructor
+to prefer specifically because it does not hide that failure.
+
 ### `ConfigManager::new()`
 
 Convenience constructor that derives the app directory from the current
@@ -22,7 +27,13 @@ let manager = ConfigManager::<Settings>::new();
 ```
 
 This is convenient for examples and small tools, but `for_app()` is more stable
-for production applications.
+for production applications, and it is the only constructor that reports
+platform-resolution failure. `new()` cannot report it without an API break —
+if the platform configuration directory cannot be resolved, `new()` falls
+back to the current directory rather than failing. Applications that run
+where this is a real possibility (services or containers without a user
+environment) should prefer `for_app()`, or supply a path explicitly with
+`with_root_dir()`.
 
 ### `with_root_dir(path)`
 

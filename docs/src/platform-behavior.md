@@ -13,6 +13,29 @@ The default desktop storage root is selected by platform.
 `ConfigManager::new()` appends the current executable stem instead. This is easy
 for examples, but less stable than an explicit app name.
 
+### Resolution failure
+
+Since v2.5.0, resolving the base directory can fail: on Unix (excluding
+macOS) when neither `XDG_CONFIG_HOME` nor `HOME` is set, on macOS when `HOME`
+is not set, and on Windows when `%APPDATA%` is not set. This is uncommon on
+desktop systems but can happen in services or containers run without a user
+environment.
+
+Only `ConfigManager::for_app()` reports this, as `ConfigError::Platform` with
+a message naming the missing variable. `ConfigManager::new()` cannot report
+it without breaking its signature, so it falls back to the current directory
+instead — see the [API guide](api-guide.md) for why `for_app()` is the
+constructor to prefer. `ConfigManager::at_current_dir()` has its own,
+unrelated fallback to `"."`, which is not surprising there because the
+caller explicitly asked for working-directory storage.
+
+Applications that hit resolution failure in practice should supply a path
+explicitly:
+
+```rust
+let manager = ConfigManager::<Settings>::new().with_root_dir(chosen_path);
+```
+
 ## Sandboxed hosts
 
 Sandboxed hosts should usually resolve their own app-local data directory and

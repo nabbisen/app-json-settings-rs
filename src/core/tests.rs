@@ -59,6 +59,47 @@ fn for_app_uses_explicit_app_identity() {
 }
 
 #[test]
+fn new_does_not_panic() {
+    // new() cannot report platform-resolution failure without an API break,
+    // so it must fall back rather than panic even where resolution would
+    // fail. Resolution failure itself is exercised directly against the
+    // private seam in `core::dir::tests`, without mutating the real
+    // environment; this test only proves the public constructor stays
+    // infallible.
+    let _ = ConfigManager::<TestSettings>::new();
+}
+
+#[test]
+fn with_root_dir_works_independently_of_platform_resolution() {
+    // with_root_dir() overwrites the folder path unconditionally, so it must
+    // keep working as the documented escape hatch even in an environment
+    // where platform resolution (HOME / %APPDATA%) would fail. This proves
+    // the public escape hatch end to end; resolution failure itself is
+    // proven directly against the private seam in `core::dir::tests`.
+    let dir = temp_dir("root-dir-independent-of-resolution");
+    let manager = ConfigManager::<TestSettings>::new()
+        .with_root_dir(&dir)
+        .try_with_filename("settings.json")
+        .expect("file name should be valid");
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: true,
+        })
+        .expect("save should succeed regardless of platform resolution");
+
+    let loaded = manager.load().expect("load should succeed");
+    assert_eq!(
+        loaded,
+        TestSettings {
+            volume: 1,
+            enabled: true,
+        }
+    );
+}
+
+#[test]
 fn safe_file_name_validation_rejects_paths() {
     assert!(is_plain_file_name("settings.json"));
     assert!(is_safe_path_component("app-json-settings"));

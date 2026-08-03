@@ -1,6 +1,6 @@
 # RFC 024 — Save reliability and atomic write policy
 
-**Status.** Implemented (v2.3.0)
+**Status.** Implemented (2.3.0)
 **Tracks.** Persistence durability and crash-safety behavior.
 **Touches.** `src/core.rs`, `src/core/save.rs` or equivalent, tests, docs.
 
@@ -11,7 +11,7 @@ partially written JSON file if the process or machine stops during a write.
 
 ## Motivation
 
-In v2.2.0, `save()` writes directly to the final file path. This is simple and
+In 2.2.0, `save()` writes directly to the final file path. This is simple and
 reasonable for a tiny crate, but settings files are user-facing state. A crash or
 power loss during direct write can corrupt the file.
 
@@ -48,7 +48,7 @@ manager.with_save_mode(SaveMode::Atomic);
 manager.with_direct_save();
 ```
 
-`Atomic` is the default in v2.3.0. `Direct` remains available for applications
+`Atomic` is the default in 2.3.0. `Direct` remains available for applications
 that intentionally want v2.2-style direct overwrite behavior or need to work
 around unusual filesystem behavior.
 
@@ -81,4 +81,4 @@ claiming strong atomic replacement behavior.
 
 ## Release notes
 
-Implemented in v2.3.0.
+Implemented in 2.3.0.

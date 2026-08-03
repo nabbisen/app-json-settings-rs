@@ -1,6 +1,6 @@
 # RFC 025 — Path safety and explicit app identity
 
-**Status.** Implemented (v2.2.0)
+**Status.** Implemented (2.2.0)
 **Tracks.** API safety and long-term maintainability.
 **Touches.** `src/core.rs`, `src/core/validation.rs`, `src/core/error.rs`, docs, tests.
 

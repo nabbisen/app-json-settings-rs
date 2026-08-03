@@ -1,6 +1,6 @@
 # RFC 023 — Test coverage and public API validation
 
-**Status.** Implemented (v2.2.0)
+**Status.** Implemented (2.2.0)
 **Tracks.** Test quality and API behavior stability.
 **Touches.** `src/core/tests.rs`, `tests/public_api.rs`, `.github/workflows/ci.yml`.
 
@@ -13,7 +13,7 @@ checked file-name validation.
 ## Motivation
 
 A settings crate is small, but users depend on stable behavior. The project had
-some internal tests after v2.1.0, but integration coverage was missing and an old
+some internal tests after 2.1.0, but integration coverage was missing and an old
 commented test file remained in `tests/`.
 
 ## Goals

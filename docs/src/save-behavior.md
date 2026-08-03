@@ -5,7 +5,7 @@ writes the resulting JSON to the configured settings path.
 
 ## Default: atomic save
 
-Since v2.3.0, the default save mode is `SaveMode::Atomic`.
+Since 2.3.0, the default save mode is `SaveMode::Atomic`.
 
 ```rust
 use app_json_settings::{ConfigManager, SaveMode};
@@ -29,7 +29,7 @@ while writing the new JSON content.
 
 ## Permissions on Unix
 
-Since v2.5.0, atomic save preserves the existing settings file's permission
+Since 2.5.0, atomic save preserves the existing settings file's permission
 bits on Unix, and the temporary file is created owner-only (`0600`) so its
 content is never briefly readable by other local users while it is being
 written.
@@ -67,7 +67,7 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?
     .with_save_mode(SaveMode::Direct);
 ```
 
-Direct save writes directly to the final file path. This matches the v2.2.0
+Direct save writes directly to the final file path. This matches the 2.2.0
 behavior and may be useful for debugging, unusual filesystems, or applications
 that intentionally want simple overwrite semantics.
 

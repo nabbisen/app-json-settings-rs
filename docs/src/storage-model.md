@@ -49,7 +49,7 @@ prefer the checked API.
 
 ## Save behavior
 
-Since v2.3.0, `save()` uses `SaveMode::Atomic` by default. It writes JSON to a
+Since 2.3.0, `save()` uses `SaveMode::Atomic` by default. It writes JSON to a
 unique temporary file in the same directory, flushes it, and then replaces the
 final settings file.
 

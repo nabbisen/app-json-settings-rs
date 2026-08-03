@@ -12,7 +12,7 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?;
 
 The app name must be a safe single path component.
 
-Since v2.5.0, this constructor also reports when the platform configuration
+Since 2.5.0, this constructor also reports when the platform configuration
 directory itself cannot be resolved (for example, no `HOME` or `%APPDATA%` in
 the environment), returning `ConfigError::Platform`. This is the constructor
 to prefer specifically because it does not hide that failure.
@@ -62,7 +62,7 @@ manager.save(&settings)?;
 let settings = manager.load()?;
 ```
 
-`save()` uses atomic replacement by default since v2.3.0. `load()` expects the
+`save()` uses atomic replacement by default since 2.3.0. `load()` expects the
 file to already exist.
 
 For normal app startup:

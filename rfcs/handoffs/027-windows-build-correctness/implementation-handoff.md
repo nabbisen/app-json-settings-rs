@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 027 Windows build correctness
 
 **Governing RFC.** [RFC 027](../../done/027-windows-build-correctness.md)
-**Status.** Inherited from RFC 027 (Implemented, v2.4.1).
+**Status.** Inherited from RFC 027 (Implemented, 2.4.1).
 **Milestone.** M1 — release 2.4.1.
 
 ## Purpose

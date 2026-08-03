@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 030 Operational contract
 
 **Governing RFC.** [RFC 030](../../done/030-operational-contract-concurrency-and-corruption.md)
-**Status.** Inherited from RFC 030 (Implemented, v2.5.0).
+**Status.** Inherited from RFC 030 (Implemented, 2.5.0).
 **Milestone.** M2 — release 2.5.0.
 **Implementation order.** Third of three, after RFCs 029 and 034.
 
@@ -52,7 +52,7 @@ Cover, in this order:
 
 **Concurrency**
 
-* **Reads are safe against concurrent writes.** Since v2.3.0 the default save
+* **Reads are safe against concurrent writes.** Since 2.3.0 the default save
   replaces by atomic rename, so a reader sees either the complete old content or
   the complete new content — never a partial file. Lead with this: it is the
   failure people most fear, and the crate genuinely prevents it.

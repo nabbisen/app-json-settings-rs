@@ -40,7 +40,7 @@
   changed; this documents behavior the crate already had. See RFC 030.
 
 This closes a permission-preservation regression introduced when
-`SaveMode::Atomic` became the default in v2.3.0 (RFC 024); see RFC 029. It
+`SaveMode::Atomic` became the default in 2.3.0 (RFC 024); see RFC 029. It
 does not make the crate a secret store — applications with real
 secret-handling requirements should continue to use a platform keychain.
 
@@ -138,7 +138,7 @@ RFC 034.
 
 * Bumped crate version to `2.3.0`.
 * Changed the default save behavior from direct overwrite to atomic replacement.
-* Moved RFC 024 to `rfcs/done/` and marked it implemented in v2.3.0.
+* Moved RFC 024 to `rfcs/done/` and marked it implemented in 2.3.0.
 * Updated storage, API, platform, testing, migration, and roadmap documentation for atomic save.
 
 ### Compatibility
@@ -166,14 +166,14 @@ RFC 034.
 * Bumped crate version to `2.2.0`.
 * Shortened `README.md` and moved detail-oriented guidance to `docs/src`.
 * Made JSON serialization and deserialization error mapping explicit at the call site.
-* Moved RFC 021 to `rfcs/done/` and marked it implemented in v2.1.0.
+* Moved RFC 021 to `rfcs/done/` and marked it implemented in 2.1.0.
 * Replaced the old commented integration test file with real public API tests.
 
 ### Compatibility
 
 * `ConfigManager::new()`, `with_filename()`, and `at_custom_dir()` remain available.
 * Default features still do not pull in the `windows` crate.
-* Atomic replacement writes are not implemented in v2.2.0; they are planned for v2.3.0.
+* Atomic replacement writes are not implemented in 2.2.0; they are planned for 2.3.0.
 
 ## 2.1.0
 

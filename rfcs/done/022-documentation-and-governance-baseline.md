@@ -1,6 +1,6 @@
 # RFC 022 — Documentation and governance baseline
 
-**Status.** Implemented (v2.2.0)
+**Status.** Implemented (2.2.0)
 **Tracks.** Project documentation, RFC structure, and contributor navigation.
 **Touches.** `README.md`, `docs/src/`, `rfcs/`, `ROADMAP.md`, `CHANGELOG.md`, `NOTICE`.
 
@@ -12,7 +12,7 @@ state-grouped RFC index, and create mdBook-compatible documentation under
 
 ## Motivation
 
-The v2.1.0 crate was intentionally small, but the project had almost no durable
+The 2.1.0 crate was intentionally small, but the project had almost no durable
 project documentation beyond the README. As API seams for UWP, sandboxed hosts,
 and future reliability work appear, the project needs enough structure to keep
 design decisions findable without making the repository heavy.
@@ -70,7 +70,7 @@ rfcs/
 
 * `rfcs/done/000-rfc-lifecycle-policy.md` exists.
 * `rfcs/README.md` lists RFCs by lifecycle state.
-* Implemented v2.1.0/v2.2.0 RFCs live under `rfcs/done/`.
+* Implemented 2.1.0/2.2.0 RFCs live under `rfcs/done/`.
 * README is concise and links to full docs.
 * `docs/src/SUMMARY.md` exists and lists user/maintainer pages.
 * `ROADMAP.md`, `CHANGELOG.md`, and `NOTICE` exist.

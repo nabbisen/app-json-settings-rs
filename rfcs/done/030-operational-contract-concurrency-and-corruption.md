@@ -1,6 +1,6 @@
 # RFC 030 — Operational contract: concurrency and corrupted files
 
-**Status.** Implemented (v2.5.0)
+**Status.** Implemented (2.5.0)
 **Tracks.** Documented behavior under concurrent access and invalid stored data.
 **Touches.** `docs/src/` (new page plus `SUMMARY.md`), `docs/src/error-handling.md`.
 **Handoff.** [implementation handoff](../handoffs/030-operational-contract-concurrency-and-corruption/implementation-handoff.md)
@@ -53,7 +53,7 @@ would cost more ceremony than the granularity is worth.
 
 The contract, stated precisely:
 
-* **Reads are safe against concurrent writes.** Since v2.3.0 the default save
+* **Reads are safe against concurrent writes.** Since 2.3.0 the default save
   replaces the file by atomic rename, so a reader sees either the complete
   previous content or the complete new content — never a partial file. This is a
   real guarantee and worth stating, because it is the failure most people fear.

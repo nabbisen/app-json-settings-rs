@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 029 Permission preservation on atomic save
 
 **Governing RFC.** [RFC 029](../../done/029-permission-preservation-on-atomic-save.md)
-**Status.** Inherited from RFC 029 (Implemented, v2.5.0).
+**Status.** Inherited from RFC 029 (Implemented, 2.5.0).
 **Milestone.** M2 — release 2.5.0.
 **Implementation order.** First of three. See "Sequencing" below.
 
@@ -15,7 +15,7 @@ the temporary file from exposing settings content while it is being written.
 Read RFC 029. In short: `rename` swaps the directory entry, so the replaced file
 carries the temporary file's umask-derived mode rather than the previous file's.
 A file deliberately restricted to `0600` becomes `0644` on the next save. This is
-a regression against v2.2 introduced by RFC 024 in v2.3.0.
+a regression against v2.2 introduced by RFC 024 in 2.3.0.
 
 ## Decision recorded by the project owner
 

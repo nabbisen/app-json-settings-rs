@@ -23,7 +23,7 @@ for examples, but less stable than an explicit app name.
 
 ### Resolution failure
 
-Since v2.5.0, resolving the base directory can fail: on Unix (excluding
+Since 2.5.0, resolving the base directory can fail: on Unix (excluding
 macOS) when neither `XDG_CONFIG_HOME` nor `HOME` is set, on macOS when `HOME`
 is not set, and on Windows when `%APPDATA%` is not set. This is uncommon on
 desktop systems but can happen in services or containers run without a user
@@ -65,7 +65,7 @@ platform-specific dependencies they do not need.
 
 ## File permissions
 
-Since v2.5.0, atomic save preserves the existing settings file's permission
+Since 2.5.0, atomic save preserves the existing settings file's permission
 bits on Unix and creates new files owner-only (`0600`). See
 [Save behavior](save-behavior.md#permissions-on-unix) for the details.
 

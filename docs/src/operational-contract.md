@@ -8,7 +8,7 @@ behavior precisely enough to be a commitment.
 
 ## Concurrency
 
-**Reads are safe against concurrent writes.** Since v2.3.0 the default save
+**Reads are safe against concurrent writes.** Since 2.3.0 the default save
 mode (`SaveMode::Atomic`) replaces the settings file by an atomic
 platform-level replace (`rename` on Unix, an internal `MoveFileExW` wrapper
 on Windows). A concurrent reader therefore always sees either the complete

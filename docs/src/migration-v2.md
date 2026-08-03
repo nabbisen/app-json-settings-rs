@@ -1,6 +1,6 @@
 # Migration to v2
 
-## v2.0.x to v2.1.0
+## v2.0.x to 2.1.0
 
 `with_root_dir()` was added as the preferred name for caller-provided storage
 roots. Existing `at_custom_dir()` code still works.
@@ -8,7 +8,7 @@ roots. Existing `at_custom_dir()` code still works.
 Pure UWP support is available through either host-resolved roots or the optional
 `uwp` feature.
 
-## v2.1.0 to v2.2.0
+## 2.1.0 to 2.2.0
 
 `for_app()` was added as the recommended production constructor:
 
@@ -25,7 +25,7 @@ let manager = manager.try_with_filename("settings.json")?;
 `with_filename()` remains available for v2.x compatibility.
 
 
-## v2.2.0 to v2.3.0
+## 2.2.0 to 2.3.0
 
 `SaveMode` was added and `save()` now uses `SaveMode::Atomic` by default.
 
@@ -40,7 +40,7 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?
 The public loading, saving, and update methods remain source-compatible.
 
 
-## v2.4.x to v2.5.0
+## v2.4.x to 2.5.0
 
 `ConfigManager::for_app()` now reports storage-root resolution failure
 instead of silently substituting a relative path.

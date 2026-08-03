@@ -1,6 +1,6 @@
 # RFC 021 — Optional UWP-Compatible Storage Root
 
-**Status.** Implemented (v2.1.0)
+**Status.** Implemented (2.1.0)
 **Tracks.** Windows sandbox compatibility and dependency policy.
 **Touches.** `Cargo.toml`, `src/core.rs`, `src/core/dir.rs`, `README.md`.
 

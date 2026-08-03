@@ -15,9 +15,9 @@ decided by the project owner and is not implied by RFC completion.
 
 ## Released
 
-### v2.2.x — Foundation quality
+### 2.2.x — Foundation quality
 
-Status: implemented in v2.2.0.
+Status: implemented in 2.2.0.
 
 * Adopt RFC lifecycle policy.
 * Add mdBook-compatible documentation.
@@ -26,26 +26,26 @@ Status: implemented in v2.2.0.
 * Add checked file-name API while preserving v2.x compatibility.
 * Add basic CI and RFC integrity script.
 
-### v2.3.x — Save reliability
+### 2.3.x — Save reliability
 
-Status: implemented in v2.3.0.
+Status: implemented in 2.3.0.
 
 * Added `SaveMode::Atomic` as the default save strategy.
 * Added `SaveMode::Direct` and direct-save builder APIs for compatibility.
 * Defined overwrite and replacement behavior on Windows, macOS, and Unix.
 * Added reliability-oriented tests around save mode and temporary-file cleanup.
 
-### v2.4.x — Minimal executable examples
+### 2.4.x — Minimal executable examples
 
-Status: implemented in v2.4.0.
+Status: implemented in 2.4.0.
 
 * Added three runnable Cargo example targets.
 * Added an examples documentation page.
 * Added example compile-checking to CI.
 
-### M1 — v2.4.1 — Platform correctness and release-gate restoration
+### M1 — 2.4.1 — Platform correctness and release-gate restoration
 
-Status: implemented in v2.4.1. Priority: **P0**.
+Status: implemented in 2.4.1. Priority: **P0**.
 
 **Objective.** Restore a crate that builds on every platform it documents, and
 restore a verification gate that would have caught the failure.
@@ -95,19 +95,19 @@ green on every job
 
 ## Planned
 
-### M2 — v2.5.0 — Durability and safety hardening
+### M2 — 2.5.0 — Durability and safety hardening
 
-Status: planned. Priority: **P1**. Sequence: after M1.
+Status: implementation complete, awaiting release. Priority: **P1**.
 
 **Objective.** Close the reliability and safety gaps that the atomic-save work
 introduced or left undefined.
 
 | RFC | Title | Priority | Depends on | Status |
 |---:|---|---|---|---|
-| 033 | RFC status check correctness | P1 | 028 | **Landed on `main`** |
-| 029 | Permission preservation on atomic save | P1 | 024, 027 | Proposed |
-| 030 | Operational contract: concurrency and corrupted files | P1 | — | Proposed |
-| 034 | Explicit storage root resolution failure | P1 | — | Proposed |
+| 033 | RFC status check correctness | P1 | 028 | Implemented — `main`, tooling-only |
+| 029 | Permission preservation on atomic save | P1 | 024, 027 | Implemented — 2.5.0 |
+| 034 | Explicit storage root resolution failure | P1 | — | Implemented — 2.5.0 |
+| 030 | Operational contract: concurrency and corrupted files | P1 | — | Implemented — 2.5.0 |
 
 * RFC 029 addresses atomic replacement discarding the previous file's mode. A
   settings file at `0600` becomes umask-default after the first atomic save, and
@@ -139,12 +139,15 @@ permissions and storage-root failure reporting respectively. M2 is a minor
 release, not a patch, and both need release notes and a migration section for
 applications already pinned to 2.4.x.
 
-**Open decision inside RFC 029.** When no settings file exists yet, a newly
-created file gets either `0600` (recommended) or the umask default (`0644`
-typically, matching today). This is recorded in the RFC as a decision for the
-project owner, not an implementation detail.
+**Decided.** RFC 029 creates new settings files at `0600` on Unix. Existing
+files keep whatever mode they have; the change is confined to file creation.
 
-### M3 — v2.6.0 — Documentation and API completeness
+**Remaining before release.** The release candidate — bump `Cargo.toml` to
+`2.5.0` and confirm the changelog covers all three RFCs — has not been produced
+yet; the version is still `2.4.1`. Before tagging, verify that every RFC claiming
+`2.5.0` actually shipped in it.
+
+### M3 — 2.6.0 — Documentation and API completeness
 
 Status: planned. Priority: **P2**. Sequence: after M2.
 

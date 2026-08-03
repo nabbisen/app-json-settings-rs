@@ -1,6 +1,6 @@
 # RFC 026 — Minimal executable examples
 
-**Status.** Implemented (v2.4.0)
+**Status.** Implemented (2.4.0)
 **Tracks.** Documentation, examples, user onboarding.
 **Touches.** `examples/`, `docs/src/examples.md`, `README.md`, `.github/workflows/ci.yml`.
 

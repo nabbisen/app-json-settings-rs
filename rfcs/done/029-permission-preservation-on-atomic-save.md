@@ -1,6 +1,6 @@
 # RFC 029 — Permission preservation on atomic save
 
-**Status.** Implemented (v2.5.0)
+**Status.** Implemented (2.5.0)
 **Tracks.** Durability and safety of the default save path.
 **Touches.** `src/core/save.rs`, `src/core/tests.rs`, `docs/src/save-behavior.md`, `docs/src/platform-behavior.md`, `CHANGELOG.md`.
 **Amends.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md)
@@ -16,7 +16,7 @@ its contents are never briefly world-readable.
 
 ## Motivation
 
-RFC 024 made `SaveMode::Atomic` the default in v2.3.0. Atomic replacement works by
+RFC 024 made `SaveMode::Atomic` the default in 2.3.0. Atomic replacement works by
 writing a temporary file and `rename`-ing it over the target. `rename` swaps the
 directory entry, so the resulting file carries the **temporary file's** ownership
 and mode, not the replaced file's. RFC 024's design considered crash-safety and

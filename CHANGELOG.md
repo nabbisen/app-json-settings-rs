@@ -32,6 +32,12 @@
 * `ConfigManager::new()` is unaffected by the above — it keeps falling back to
   the current directory, since it cannot report an error without an API
   break. Its fallback is now implemented explicitly rather than incidentally.
+* Added a new documentation page, `docs/src/operational-contract.md`,
+  stating the crate's concurrency contract (atomic reads are safe, writes
+  are unlocked and last-writer-wins, and why the crate does not take a
+  cross-process lock) and its behavior on corrupted or externally modified
+  settings files (`load_or_default()` never silently resets). No behavior
+  changed; this documents behavior the crate already had. See RFC 030.
 
 This closes a permission-preservation regression introduced when
 `SaveMode::Atomic` became the default in v2.3.0 (RFC 024); see RFC 029. It

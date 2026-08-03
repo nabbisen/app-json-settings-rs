@@ -162,9 +162,9 @@ candidates.
 
 ## Planned
 
-### M3 — 2.6.0 — Documentation and API completeness
+### M3 — Documentation and API completeness
 
-Status: slice 1 proposed. Priority: **P2**. Sequence: after M2.
+Status: slices 1 and 2 implemented, releasing as 2.5.1. Priority: **P2**.
 
 **Objective.** Make the documentation true, verified, and complete, and close the
 gap between the documented API surface and the real one.
@@ -175,10 +175,28 @@ each gets its own RFC.
 
 | Slice | RFC | Title | Priority | Status |
 |---:|---:|---|---|---|
-| 1 | 035 | Documentation currency and recovery example | P1 | Implemented |
-| 2 | 036 | Documentation example verification | P1 | Proposed |
+| 1 | 035 | Documentation currency and recovery example | P1 | Implemented — 2.5.1 |
+| 2 | 036 | Documentation example verification | P1 | Implemented — 2.5.1 |
 | 3 | 032 | API surface completeness | P2 | Not yet written |
 | 4 | — | `uwp` feature disposition | P2 | Not yet written |
+
+**This milestone is not one release.** It was originally scoped as 2.6.0, on the
+assumption that its slices would ship together. Slices 1 and 2 turned out to
+contain no code — their only user-facing effect is the crate's crates.io landing
+page, which was stale — so the owner decided to release them as **2.5.1**, a
+documentation patch, rather than hold them behind slices 3 and 4.
+
+Consequences worth recording:
+
+* RFCs 035 and 036 stop carrying provisional `main` labels and take `2.5.1`. The
+  release-time check introduced in review 003 and extended in review 007 fires
+  here.
+* Whether slices 3 and 4 warrant their own release, and at what level, is
+  decided on their own merits once scoped. If the `uwp` disposition ends in
+  deprecation that is a compatibility event and earns a minor bump; if slice 3
+  stays documentation-shaped it may not.
+* Milestones are planning units, not release units. RFC and release boundaries
+  may differ, which the governance policy already permits.
 
 **Slice 1 — RFC 035.** The README and two documentation pages lag 2.5.0: the
 "More detail" list links 7 of 13 pages and omits `operational-contract.md`

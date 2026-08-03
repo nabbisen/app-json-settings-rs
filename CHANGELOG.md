@@ -1,5 +1,33 @@
 # Changelog
 
+## 2.5.1
+
+### Changed
+
+* `README.md` brought current with 2.5.0: states the declared MSRV, notes
+  that `for_app()` reports storage-root resolution failure instead of
+  falling back silently, and mentions the 2.5.0 permission-preservation and
+  error-reporting behavior changes. Documentation links reorganized from a
+  flat list into three reader paths, with every `docs/src/` page now linked
+  from exactly one of them.
+* Added `examples/recovery.rs`, demonstrating recovery from a settings file
+  that fails to deserialize: catch the error, move the file aside, and
+  continue with defaults.
+* `docs/src/testing.md` now states the verification boundary explicitly:
+  `examples/` and the `src/lib.rs` doctest are compiled and run by CI on
+  three platforms; the illustrative Rust fragments elsewhere in `docs/src/`
+  are not, and are now marked as such.
+
+This is a documentation and example release. No API, behavior, dependency,
+or MSRV change.
+
+### Compatibility
+
+* No public API change, no new dependency.
+* No behavior change. `git diff --name-only 2.5.0..2.5.1` touches nothing
+  under `src/`.
+* Patch release, not a minor.
+
 ## 2.5.0
 
 ### Changed

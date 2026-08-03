@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 036 Documentation example verification
 
 **Governing RFC.** [RFC 036](../../done/036-documentation-example-verification.md)
-**Status.** Inherited from RFC 036 (Implemented).
+**Status.** Inherited from RFC 036 (Implemented, 2.5.1).
 **Milestone.** M3 — slice 2 of 4.
 
 ## Purpose

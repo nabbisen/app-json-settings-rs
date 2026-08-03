@@ -1,6 +1,6 @@
 # RFC 036 — Documentation example verification
 
-**Status.** Implemented
+**Status.** Implemented (2.5.1)
 **Tracks.** Verification of user-facing code examples, and honesty about what is verified.
 **Touches.** `docs/src/` pages, `examples/`, `docs/src/testing.md`.
 **Handoff.** [implementation handoff](../handoffs/036-documentation-example-verification/implementation-handoff.md)

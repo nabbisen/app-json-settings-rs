@@ -1,6 +1,6 @@
 [package]
 name        = "app-json-settings"
-version     = "2.5.0"
+version     = "2.5.1"
 description = "Tiny typed JSON settings persistence for Rust applications."
 readme      = "README.md"
 exclude     = [".vscode/"]

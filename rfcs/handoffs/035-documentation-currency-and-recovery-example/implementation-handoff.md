@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 035 Documentation currency and recovery example
 
 **Governing RFC.** [RFC 035](../../done/035-documentation-currency-and-recovery-example.md)
-**Status.** Inherited from RFC 035 (Implemented).
+**Status.** Inherited from RFC 035 (Implemented, 2.5.1).
 **Milestone.** M3 — slice 1 of 4.
 
 ## Purpose

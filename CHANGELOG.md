@@ -31,9 +31,10 @@ secret-handling requirements should continue to use a platform keychain.
 ### Compatibility
 
 * No public API change, no new dependency, no `unsafe` added.
-* Behavior change on Unix only, confined to file creation and to files that
-  already had their previous mode overwritten by a prior atomic save. Minor
-  release, not a patch.
+* Behavior change on Unix only. It affects newly created files, which are now
+  `0600`, and existing files whose mode differs from the umask default, which
+  now keep that mode instead of losing it on the next save. Files already
+  sitting at the umask default are unaffected. Minor release, not a patch.
 
 ## 2.4.1
 

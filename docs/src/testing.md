@@ -9,20 +9,20 @@ let manager = ConfigManager::<Settings>::new()
     .try_with_filename("settings.json")?;
 ```
 
-The crate's own tests cover:
+The crate's own tests cover, by category:
 
-* public constructor behavior;
-* custom root behavior;
-* checked file-name rejection;
-* save/load round trips;
-* compact JSON output;
-* first-run default creation;
-* update persistence;
-* invalid JSON error classification;
-* default atomic save mode;
-* direct save mode selection;
-* temporary-file cleanup after successful atomic save;
-* preservation of existing files when serialization fails before storage is touched.
+* constructor and storage-root behavior, including checked file names and
+  storage-root resolution failure;
+* save and load round trips, including JSON formatting options and error
+  classification;
+* atomic save mode selection, temporary-file handling, and Unix permission
+  preservation;
+* update and first-run-default persistence.
+
+The tests live in `src/core/tests.rs`, `src/core/save/tests.rs`,
+`src/core/dir/tests.rs`, and `tests/public_api.rs`. Read those files for the
+current, exact set of cases — an enumerated list here would go stale the next
+time a test is added.
 
 The default build should also be tested with no features so the optional UWP
 support does not become an accidental default dependency.

@@ -31,3 +31,15 @@ match manager.load() {
 See [Operational contract](operational-contract.md) for what `load()` and
 `load_or_default()` guarantee under concurrent access and when the settings
 file exists but does not parse, including a worked recovery pattern.
+
+## `ConfigError::Platform`
+
+Two things produce this variant: `ConfigManager::for_app()`, when the
+platform configuration directory cannot be resolved (no `HOME` on Unix or
+macOS, no `%APPDATA%` on Windows), and the optional UWP local-folder
+resolver.
+
+The remedy is the same in both cases: supply a path explicitly with
+`with_root_dir()` instead of relying on platform resolution. See
+[Migration to v2](migration-v2.md) for the upgrade guidance this produced in
+2.5.0.

@@ -9,6 +9,7 @@ Run examples from the project root:
 cargo run --example basic
 cargo run --example custom_root
 cargo run --example update
+cargo run --example recovery
 ```
 
 ## `basic`
@@ -28,6 +29,14 @@ apps where the host application resolves its own storage root.
 Shows the read-modify-write path with `update()`. This is the usual flow for GUI
 preferences such as launch counters, theme changes, recent-file lists, and window
 state updates.
+
+## `recovery`
+
+Shows the pattern from [Operational contract](operational-contract.md) for
+recovering from a settings file that fails to deserialize: catch
+`ConfigError::Deserialize`, move the unreadable file aside, and continue with
+defaults. The example deliberately writes an invalid settings file first, so
+running it exercises the recovery branch rather than only the happy path.
 
 ## Maintenance rule
 

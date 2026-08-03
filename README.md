@@ -29,7 +29,9 @@ Use this crate when your application has a small settings struct and you want:
 * first-run defaults with `load_or_default()`
 * read-modify-write updates with `update()`
 * atomic save by default, with direct save still available
-* OS-default config locations for desktop apps
+* OS-default config locations for desktop apps — with a clear error, not a
+  silent fallback, if that location can't be resolved (`with_root_dir()`
+  covers the exception)
 * caller-provided storage roots for tests, portable mode, or sandboxed hosts
 * optional Pure UWP local-folder resolution without a default `windows` dependency
 
@@ -66,12 +68,17 @@ fn main() -> app_json_settings::Result<()> {
 ## Features / design notes
 
 * Default build depends only on `serde` and `serde_json`.
-* `ConfigManager::for_app()` is the recommended desktop constructor.
+* `ConfigManager::for_app()` is the recommended desktop constructor, and
+  reports storage-root resolution failure instead of silently falling back
+  to the working directory.
 * `ConfigManager::with_root_dir()` is the sandbox-friendly storage seam.
 * `ConfigManager::try_with_filename()` validates plain file names.
-* `SaveMode::Atomic` is the default save strategy.
+* `SaveMode::Atomic` is the default save strategy. It preserves the previous
+  file's Unix permission bits across replacement, and creates new files
+  owner-only (`0600`).
 * `with_filename()` remains available for v2.x compatibility.
 * The optional `uwp` feature enables `at_uwp_local_folder()` on Windows.
+* Requires Rust 1.85.0 or newer, verified in CI.
 
 ## Examples
 
@@ -86,15 +93,20 @@ cargo run --example update
 ## More detail
 
 Full documentation is maintained under `docs/src` and can be read with mdBook.
-Start with:
 
-* `docs/src/quick-start.md`
-* `docs/src/examples.md`
-* `docs/src/storage-model.md`
-* `docs/src/save-behavior.md`
-* `docs/src/platform-behavior.md`
-* `docs/src/uwp.md`
-* `docs/src/api-guide.md`
+* **Getting started** — [introduction](docs/src/introduction.md),
+  [quick start](docs/src/quick-start.md),
+  [executable examples](docs/src/examples.md)
+* **Using the crate** — [storage model](docs/src/storage-model.md),
+  [save behavior](docs/src/save-behavior.md),
+  [API guide](docs/src/api-guide.md),
+  [error handling](docs/src/error-handling.md),
+  [operational contract](docs/src/operational-contract.md),
+  [platform behavior](docs/src/platform-behavior.md),
+  [Pure UWP support](docs/src/uwp.md)
+* **Contributing and maintaining** — [testing guide](docs/src/testing.md),
+  [migration to v2](docs/src/migration-v2.md),
+  [maintainer notes](docs/src/maintainer-notes.md)
 
 ## Acknowledgements
 

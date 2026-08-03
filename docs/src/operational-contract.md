@@ -88,9 +88,10 @@ a symlink across saves.
 
 ## Recovery pattern
 
-A worked pattern for handling a settings file that fails to deserialize:
-move it aside, continue with defaults, and tell the user so they know their
-previous settings did not simply vanish.
+The shape of handling a settings file that fails to deserialize: move it
+aside, continue with defaults, and tell the user so they know their
+previous settings did not simply vanish. The worked, runnable version lives
+in `examples/recovery.rs`.
 
 ```rust
 match manager.load_or_default() {

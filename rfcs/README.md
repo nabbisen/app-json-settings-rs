@@ -4,7 +4,9 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No proposed RFCs at this time.
+| ID | Title | Priority |
+|---:|---|---|
+| 036 | [Documentation example verification](./proposed/036-documentation-example-verification.md) | P1 |
 
 ## Implemented
 

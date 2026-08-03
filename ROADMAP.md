@@ -175,8 +175,8 @@ each gets its own RFC.
 
 | Slice | RFC | Title | Priority | Status |
 |---:|---:|---|---|---|
-| 1 | 035 | Documentation currency and recovery example | P1 | Proposed |
-| 2 | — | Documentation example verification | P1 | Not yet written |
+| 1 | 035 | Documentation currency and recovery example | P1 | Implemented |
+| 2 | 036 | Documentation example verification | P1 | Proposed |
 | 3 | 032 | API surface completeness | P2 | Not yet written |
 | 4 | — | `uwp` feature disposition | P2 | Not yet written |
 
@@ -190,12 +190,23 @@ path, which RFC 030 turned from an edge case into a documented contract. Amends
 RFC 026's example maintenance rule — narrowly, recording that this example meets
 the existing bar rather than lowering it.
 
-**Slice 2 — documentation example verification.** No `docs/src/` example is
-compile-checked: 28 Rust blocks, none covered by CI. `cargo test --doc` reaches
-exactly one doctest, in `src/lib.rs`. Found during the RFC 030 review. Candidate
-approaches — `mdbook test` in CI, `include_str!` doctests, or moving
-copy-critical examples into `examples/` — differ enough in cost and coverage to
-need a decision, so this does not fold into slice 1 or 3.
+**Slice 2 — RFC 036.** No `docs/src/` example is compile-checked. Measured rather
+than estimated: initializing a throwaway mdbook against the real crate and running
+`mdbook test` gives **0 passed, 28 failed** — every block is a fragment with no
+`use`, no type definitions, and placeholder identifiers.
+
+The decision turned out not to be a choice of tooling. `#[doc = include_str!(…)]`
+was verified by probe to work and needs no mdbook, no `book.toml`, and no new CI
+job — but hidden setup lines are a rustdoc and mdbook convention, and GitHub
+renders them as visible noise. Since RFC 035 made the README hard-link every
+`docs/src/` page and the book is not published anywhere, GitHub is the only
+reading path that exists, so every full-verification route taxes it permanently.
+
+RFC 036 therefore moves copy-critical code into `examples/` — already
+compile-checked on three platforms by existing CI — and marks the remaining
+fragments as illustrative in prose. It accepts partial verification deliberately
+and says so. If the book is ever published, the trade-off reverses and RFC 036
+should be superseded rather than amended.
 
 **Slice 3 — RFC 032.** `at_current_dir()` is public but has one incidental
 mention in the documentation and no test. `for_app()` accepts Windows-reserved

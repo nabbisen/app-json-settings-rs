@@ -4,7 +4,9 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No proposed RFCs at this time.
+| ID | Title | Priority |
+|---:|---|---|
+| 035 | [Documentation currency and recovery example](./proposed/035-documentation-currency-and-recovery-example.md) | P1 |
 
 ## Implemented
 

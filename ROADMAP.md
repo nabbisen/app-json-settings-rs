@@ -164,31 +164,51 @@ candidates.
 
 ### M3 — 2.6.0 — Documentation and API completeness
 
-Status: planned. Priority: **P2**. Sequence: after M2.
+Status: slice 1 proposed. Priority: **P2**. Sequence: after M2.
 
-**Objective.** Close the gap between the documented API surface and the real one.
+**Objective.** Make the documentation true, verified, and complete, and close the
+gap between the documented API surface and the real one.
 
-| RFC | Title | Priority | Depends on |
-|---:|---|---|---|
-| 032 | API surface and documentation completeness | P2 | — |
+The milestone runs as four ordered slices. Slice 1 is truth-fixing with no design
+decisions beyond one recorded amendment; slices 2 to 4 each carry a decision, so
+each gets its own RFC.
 
-* `at_current_dir()` is public but appears in no documentation page and has no
-  test.
-* `for_app()` accepts Windows-reserved device names such as `CON` and `NUL`.
-  RFC 025 declared full OS-specific filename legality a non-goal; that limitation
-  should be stated explicitly rather than left to be discovered.
-* Review docs.rs rendering and doctest coverage.
-* No `docs/src/` example is compile-checked. 28 Rust blocks across the
-  documentation are unverified by CI, and `docs/src/testing.md` implies
-  otherwise — true of `examples/`, not of the documentation. Found during the
-  RFC 030 review. Candidate approaches (`mdbook test` in CI, `include_str!`
-  doctests, or moving copy-critical examples into `examples/`) differ enough in
-  cost and coverage to need a decision, so this wants its own RFC rather than
-  folding into 032.
-* The optional `uwp` feature compiles but its runtime behavior has never been
-  verified, and `docs/src/uwp.md` already recommends host-resolved roots via
-  `with_root_dir()` instead. Whether to verify it once by hand, mark it
-  experimental, or deprecate it is an open question for planning.
+| Slice | RFC | Title | Priority | Status |
+|---:|---:|---|---|---|
+| 1 | 035 | Documentation currency and recovery example | P1 | Proposed |
+| 2 | — | Documentation example verification | P1 | Not yet written |
+| 3 | 032 | API surface completeness | P2 | Not yet written |
+| 4 | — | `uwp` feature disposition | P2 | Not yet written |
+
+**Slice 1 — RFC 035.** The README and two documentation pages lag 2.5.0: the
+"More detail" list links 7 of 13 pages and omits `operational-contract.md`
+entirely, "Features / design notes" predates the release, "Why / when" offers
+OS-default config locations without noting that resolution can fail, there is no
+MSRV statement, and `testing.md`'s enumerated test inventory went stale within a
+single release. Adds `examples/recovery.rs` covering the corrupted-file recovery
+path, which RFC 030 turned from an edge case into a documented contract. Amends
+RFC 026's example maintenance rule — narrowly, recording that this example meets
+the existing bar rather than lowering it.
+
+**Slice 2 — documentation example verification.** No `docs/src/` example is
+compile-checked: 28 Rust blocks, none covered by CI. `cargo test --doc` reaches
+exactly one doctest, in `src/lib.rs`. Found during the RFC 030 review. Candidate
+approaches — `mdbook test` in CI, `include_str!` doctests, or moving
+copy-critical examples into `examples/` — differ enough in cost and coverage to
+need a decision, so this does not fold into slice 1 or 3.
+
+**Slice 3 — RFC 032.** `at_current_dir()` is public but has one incidental
+mention in the documentation and no test. `for_app()` accepts Windows-reserved
+device names such as `CON` and `NUL`; RFC 025 declared full OS-specific filename
+legality a non-goal, and that limitation should be stated rather than discovered.
+Also docs.rs rendering: the crate's Windows-only API is invisible on docs.rs
+because builds run on Linux.
+
+**Slice 4 — `uwp` disposition.** The feature compiles but its runtime behavior
+has never been verified, and `docs/src/uwp.md` already recommends host-resolved
+roots via `with_root_dir()` instead — so the crate's own documentation routes
+users around it. Verify once by hand, mark experimental, or deprecate. A
+compatibility decision, and therefore the project owner's.
 
 ## Candidates — not scheduled
 

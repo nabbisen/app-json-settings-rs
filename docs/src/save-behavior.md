@@ -1,5 +1,8 @@
 # Save behavior
 
+The Rust snippets on this page are illustrative fragments, not compiled or
+run by CI — see [Testing guide](testing.md#verification-boundary).
+
 `save()` serializes the complete settings value to JSON in memory and then
 writes the resulting JSON to the configured settings path.
 

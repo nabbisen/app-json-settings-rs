@@ -1,5 +1,8 @@
 # Error handling
 
+The Rust snippets on this page are illustrative fragments, not compiled or
+run by CI — see [Testing guide](testing.md#verification-boundary).
+
 Most APIs return `app_json_settings::Result<T>`.
 
 The error type is `ConfigError`:

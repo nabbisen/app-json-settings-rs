@@ -1,5 +1,10 @@
 # Quick start
 
+The Rust snippets on this page are illustrative fragments, not compiled or
+run by CI — see [Testing guide](testing.md#verification-boundary). For
+complete runnable versions, see [Executable examples](#executable-examples)
+below.
+
 Add the crate and Serde derive support:
 
 ```toml

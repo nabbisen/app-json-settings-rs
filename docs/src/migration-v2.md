@@ -1,5 +1,10 @@
 # Migration to v2
 
+The Rust snippets on this page are illustrative, not compiled or run by CI
+— see [Testing guide](testing.md#verification-boundary). Some deliberately
+show pre-2.5.0 code and would not compile against the current crate even if
+verified.
+
 ## v2.0.x to 2.1.0
 
 `with_root_dir()` was added as the preferred name for caller-provided storage

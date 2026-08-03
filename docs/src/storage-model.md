@@ -1,5 +1,8 @@
 # Storage model
 
+The Rust snippets on this page are illustrative fragments, not compiled or
+run by CI — see [Testing guide](testing.md#verification-boundary).
+
 The crate stores one settings value in one JSON file.
 
 ```text

@@ -1,5 +1,8 @@
 # Platform behavior
 
+The Rust snippets on this page are illustrative fragments, not compiled or
+run by CI — see [Testing guide](testing.md#verification-boundary).
+
 **Supported targets.** The crate builds for Unix (including macOS) and
 Windows targets. Storage-root resolution has no fallback branch for any
 other target family, so the crate does not compile there at all — mentions

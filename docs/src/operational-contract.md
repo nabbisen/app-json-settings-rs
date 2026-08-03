@@ -93,23 +93,24 @@ move it aside, continue with defaults, and tell the user so they know their
 previous settings did not simply vanish.
 
 ```rust
-use app_json_settings::{ConfigError, ConfigManager};
-
-fn load_settings(
-    manager: &ConfigManager<Settings>,
-) -> app_json_settings::Result<Settings> {
-    match manager.load_or_default() {
-        Ok(settings) => Ok(settings),
-        Err(ConfigError::Deserialize(error)) => {
-            eprintln!("settings file is invalid, moving it aside: {error}");
-            let backup = manager.path().with_extension("json.bak");
-            std::fs::rename(manager.path(), &backup)?;
-            manager.load_or_default()
-        }
-        Err(error) => Err(error),
+match manager.load_or_default() {
+    Ok(settings) => settings,
+    Err(ConfigError::Deserialize(error)) => {
+        eprintln!("settings file is invalid, moving it aside: {error}");
+        // Rename to a `.bak` path, then retry `load_or_default()` so the
+        // caller gets defaults instead of an error. Full pattern, runnable:
+        // examples/recovery.rs (`cargo run --example recovery`).
+        todo!()
     }
+    Err(error) => return Err(error),
 }
 ```
+
+This is an excerpt — illustrative, not compiled or run by CI (see
+[Testing guide](testing.md#verification-boundary)). The complete, runnable
+version, including the actual `.bak` rename, lives in
+[`examples/recovery.rs`](https://github.com/nabbisen/app-json-settings-rs/blob/main/examples/recovery.rs)
+and is compile-checked and run in CI: `cargo run --example recovery`.
 
 The moved-aside `.bak` file carries the same sensitivity as the original
 settings file — if the application's settings can hold anything sensitive,

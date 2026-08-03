@@ -36,3 +36,12 @@ cargo test --examples
 
 Examples should avoid writing to real user application data paths. Prefer
 caller-provided temporary roots inside examples so users can run them safely.
+
+## Verification boundary
+
+`examples/` and the doctest in `src/lib.rs` are compiled and run by CI on
+Linux, macOS, and Windows. The Rust snippets scattered through the rest of
+`docs/src/` are illustrative fragments — they show API shape, not complete
+programs — and nothing compiles or runs them. Where a page's snippet
+overlaps what an example already demonstrates, the example is canonical;
+the snippet is there for reading context, not as a copy source.

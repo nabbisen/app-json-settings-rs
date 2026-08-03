@@ -1,5 +1,11 @@
 # Pure UWP support
 
+The Rust snippets on this page are illustrative, not compiled or run by CI
+— see [Testing guide](testing.md#verification-boundary). The optional
+resolver's snippet calls `at_uwp_local_folder()`, which only exists under
+`cfg(all(windows, feature = "uwp"))` and could not compile on this
+project's Linux-based doctest run regardless of how it were written.
+
 Pure UWP apps should not rely on classic desktop `%APPDATA%` path resolution.
 They should store app data under the app-local data location.
 

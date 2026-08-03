@@ -4,9 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 036 | [Documentation example verification](./proposed/036-documentation-example-verification.md) | P1 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -26,6 +24,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 033 | [RFC status check correctness](./done/033-rfc-status-check-correctness.md) | main |
 | 034 | [Explicit storage root resolution failure](./done/034-explicit-storage-root-resolution.md) | 2.5.0 |
 | 035 | [Documentation currency and recovery example](./done/035-documentation-currency-and-recovery-example.md) | main (provisional — update to the M3 release version when it ships) |
+| 036 | [Documentation example verification](./done/036-documentation-example-verification.md) | main (provisional — update to the M3 release version when it ships) |
 
 ## Archive
 

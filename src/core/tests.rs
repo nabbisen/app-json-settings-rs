@@ -186,6 +186,32 @@ fn load_reports_invalid_json_as_deserialization_error() {
 }
 
 #[test]
+fn load_or_default_does_not_reset_an_existing_invalid_file() {
+    // load_or_default() creates defaults only when the file is absent
+    // (NotFound). An existing file that fails to parse must return
+    // Deserialize, not silently reset to defaults -- and the file on disk
+    // must be untouched, which is what actually proves no reset happened.
+    let dir = temp_dir("invalid-json-no-reset");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    fs::create_dir_all(&dir).expect("test directory should be created");
+    let invalid_content = "not-json";
+    fs::write(manager.path(), invalid_content).expect("invalid settings file should be written");
+
+    let error = manager
+        .load_or_default()
+        .expect_err("load_or_default should not silently reset an existing invalid file");
+    assert!(matches!(error, crate::ConfigError::Deserialize(_)));
+
+    let content_after =
+        fs::read_to_string(manager.path()).expect("settings file should still be readable");
+    assert_eq!(
+        content_after, invalid_content,
+        "the invalid file must be left exactly as it was, not reset"
+    );
+}
+
+#[test]
 fn update_modifies_and_persists_configuration() {
     let dir = temp_dir("update");
     let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);

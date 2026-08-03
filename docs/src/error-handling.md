@@ -27,3 +27,7 @@ match manager.load() {
     Err(error) => return Err(error),
 }
 ```
+
+See [Operational contract](operational-contract.md) for what `load()` and
+`load_or_default()` guarantee under concurrent access and when the settings
+file exists but does not parse, including a worked recovery pattern.

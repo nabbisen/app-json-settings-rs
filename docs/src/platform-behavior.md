@@ -1,5 +1,13 @@
 # Platform behavior
 
+**Supported targets.** The crate builds for Unix (including macOS) and
+Windows targets. Storage-root resolution has no fallback branch for any
+other target family, so the crate does not compile there at all — mentions
+of "other targets" elsewhere on this page and in
+[Save behavior](save-behavior.md) describe `SaveMode`'s replacement-strategy
+fallback for a hypothetical future target, not a configuration that exists
+today.
+
 The default desktop storage root is selected by platform.
 
 | Platform | Base directory |

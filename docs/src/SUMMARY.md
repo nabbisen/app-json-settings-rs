@@ -9,6 +9,7 @@
 - [Platform behavior](platform-behavior.md)
 - [Pure UWP support](uwp.md)
 - [Error handling](error-handling.md)
+- [Operational contract](operational-contract.md)
 - [Testing guide](testing.md)
 - [Migration to v2](migration-v2.md)
 - [Maintainer notes](maintainer-notes.md)

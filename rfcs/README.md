@@ -4,9 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 030 | [Operational contract: concurrency and corrupted files](./proposed/030-operational-contract-concurrency-and-corruption.md) | P1 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -22,6 +20,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 027 | [Windows build correctness](./done/027-windows-build-correctness.md) | v2.4.1 |
 | 028 | [Release verification gate](./done/028-release-verification-gate.md) | v2.4.1 |
 | 029 | [Permission preservation on atomic save](./done/029-permission-preservation-on-atomic-save.md) | v2.5.0 |
+| 030 | [Operational contract: concurrency and corrupted files](./done/030-operational-contract-concurrency-and-corruption.md) | v2.5.0 |
 | 033 | [RFC status check correctness](./done/033-rfc-status-check-correctness.md) | main |
 | 034 | [Explicit storage root resolution failure](./done/034-explicit-storage-root-resolution.md) | v2.5.0 |
 

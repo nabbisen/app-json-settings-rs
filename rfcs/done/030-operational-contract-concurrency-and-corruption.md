@@ -1,6 +1,6 @@
 # RFC 030 — Operational contract: concurrency and corrupted files
 
-**Status.** Proposed
+**Status.** Implemented (v2.5.0)
 **Tracks.** Documented behavior under concurrent access and invalid stored data.
 **Touches.** `docs/src/` (new page plus `SUMMARY.md`), `docs/src/error-handling.md`.
 **Handoff.** [implementation handoff](../handoffs/030-operational-contract-concurrency-and-corruption/implementation-handoff.md)

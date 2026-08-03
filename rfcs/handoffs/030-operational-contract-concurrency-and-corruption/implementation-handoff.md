@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 030 Operational contract
 
-**Governing RFC.** [RFC 030](../../proposed/030-operational-contract-concurrency-and-corruption.md)
-**Status.** Inherited from RFC 030 (Proposed).
+**Governing RFC.** [RFC 030](../../done/030-operational-contract-concurrency-and-corruption.md)
+**Status.** Inherited from RFC 030 (Implemented, v2.5.0).
 **Milestone.** M2 — release 2.5.0.
 **Implementation order.** Third of three, after RFCs 029 and 034.
 

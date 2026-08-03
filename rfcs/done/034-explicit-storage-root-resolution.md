@@ -1,6 +1,6 @@
 # RFC 034 — Explicit storage root resolution failure
 
-**Status.** Proposed
+**Status.** Implemented (v2.5.0)
 **Tracks.** Honest failure reporting from the production constructor.
 **Touches.** `src/core/dir.rs`, `src/core.rs`, `src/core/tests.rs`, `docs/src/platform-behavior.md`, `docs/src/api-guide.md`, `docs/src/migration-v2.md`, `CHANGELOG.md`.
 **Handoff.** [implementation handoff](../handoffs/034-explicit-storage-root-resolution/implementation-handoff.md)

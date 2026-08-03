@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 034 Explicit storage root resolution failure
 
-**Governing RFC.** [RFC 034](../../proposed/034-explicit-storage-root-resolution.md)
-**Status.** Inherited from RFC 034 (Proposed).
+**Governing RFC.** [RFC 034](../../done/034-explicit-storage-root-resolution.md)
+**Status.** Inherited from RFC 034 (Implemented, v2.5.0).
 **Milestone.** M2 — release 2.5.0.
 **Implementation order.** Second of three, after RFC 029.
 

@@ -93,11 +93,9 @@ RFC 028's remaining slices (B-D) landed after, and a full CI run was observed
 green on every job
 ([run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30700304434)).
 
-## Planned
-
 ### M2 — 2.5.0 — Durability and safety hardening
 
-Status: implementation complete, awaiting release. Priority: **P1**.
+Status: released in 2.5.0. Priority: **P1**.
 
 **Objective.** Close the reliability and safety gaps that the atomic-save work
 introduced or left undefined.
@@ -134,18 +132,35 @@ introduced or left undefined.
   a prerequisite for archiving any RFC — until it landed, the gate rejected
   correct withdrawals.
 
-**Version note.** RFCs 029 and 034 both change observable behavior — file
-permissions and storage-root failure reporting respectively. M2 is a minor
-release, not a patch, and both need release notes and a migration section for
-applications already pinned to 2.4.x.
+**Version note.** RFCs 029 and 034 both changed observable behavior — file
+permissions and storage-root failure reporting respectively — so M2 shipped as a
+minor release with release notes and a migration section for applications pinned
+to 2.4.x.
 
-**Decided.** RFC 029 creates new settings files at `0600` on Unix. Existing
-files keep whatever mode they have; the change is confined to file creation.
+**Decided.** RFC 029 creates new settings files at `0600` on Unix. Existing files
+keep whatever mode they have; the change is confined to file creation.
 
-**Remaining before release.** The release candidate — bump `Cargo.toml` to
-`2.5.0` and confirm the changelog covers all three RFCs — has not been produced
-yet; the version is still `2.4.1`. Before tagging, verify that every RFC claiming
-`2.5.0` actually shipped in it.
+**Evidence.** Implemented serially, each unit reviewed against artifacts before
+the next began: RFC 029 (`26bbc41`), RFC 034 (`e4e354d`), RFC 030 (`64998ee`),
+each followed by its close-out commit. Release candidate `6ce3fb2`; version-format
+correction `a94a6fa`. Full CI matrix green on both
+([run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30778518231),
+[run](https://github.com/nabbisen/app-json-settings-rs/actions/runs/30781349789)).
+Tagged `2.5.0` at `a94a6fa` and published to crates.io.
+
+Before tagging, the release check carried over from the M1 reviews was
+discharged: every RFC claiming `2.5.0` was confirmed present in the release —
+029, 030, and 034, and only those. RFC 033 correctly claims `main`, being
+tooling-only.
+
+**Carried forward.** Three residual items were recorded rather than silently
+accepted: UWP runtime behavior remains unverified (unchanged since 2.4.1); no
+`docs/src/` example is compile-checked by CI; and the `0600` new-file default can
+surprise a shared, group-readable settings directory on first creation, which the
+documentation covers along with its one-time `chmod` remedy. The first two are M3
+candidates.
+
+## Planned
 
 ### M3 — 2.6.0 — Documentation and API completeness
 
@@ -163,6 +178,17 @@ Status: planned. Priority: **P2**. Sequence: after M2.
   RFC 025 declared full OS-specific filename legality a non-goal; that limitation
   should be stated explicitly rather than left to be discovered.
 * Review docs.rs rendering and doctest coverage.
+* No `docs/src/` example is compile-checked. 28 Rust blocks across the
+  documentation are unverified by CI, and `docs/src/testing.md` implies
+  otherwise — true of `examples/`, not of the documentation. Found during the
+  RFC 030 review. Candidate approaches (`mdbook test` in CI, `include_str!`
+  doctests, or moving copy-critical examples into `examples/`) differ enough in
+  cost and coverage to need a decision, so this wants its own RFC rather than
+  folding into 032.
+* The optional `uwp` feature compiles but its runtime behavior has never been
+  verified, and `docs/src/uwp.md` already recommends host-resolved roots via
+  `with_root_dir()` instead. Whether to verify it once by hand, mark it
+  experimental, or deprecate it is an open question for planning.
 
 ## Candidates — not scheduled
 

@@ -14,6 +14,19 @@ red. If the gate cannot be made green, the RFC stays in `proposed/` and the
 blocking failure is recorded in it. A checklist item is marked complete only
 against a run that was actually observed, not against an expected result.
 
+## Enum stability check
+
+Adding a variant to a public enum is a breaking change unless the enum is
+`#[non_exhaustive]`. `ConfigError` is not. Check before adding one, and if
+a variant is genuinely needed, that is a major-version conversation, not a
+minor release.
+
+This rule exists because `ConfigError` already broke it once:
+`ConfigError::Platform` (2.1.0) and `ConfigError::InvalidPathComponent`
+(2.2.0) both shipped as minor releases and both break an exhaustive
+`match` downstream. See [Migration to v2](migration-v2.md) for the
+disclosure and upgrade guidance.
+
 ## Release gate
 
 The CI workflow runs the following on every push:

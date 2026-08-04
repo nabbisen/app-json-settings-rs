@@ -104,9 +104,9 @@ Full documentation is maintained under `docs/src` and can be read with mdBook.
   [error handling](docs/src/error-handling.md),
   [operational contract](docs/src/operational-contract.md),
   [platform behavior](docs/src/platform-behavior.md),
-  [Pure UWP support](docs/src/uwp.md)
+  [Pure UWP support](docs/src/uwp.md),
+  [migration to v2](docs/src/migration-v2.md)
 * **Contributing and maintaining** — [testing guide](docs/src/testing.md),
-  [migration to v2](docs/src/migration-v2.md),
   [maintainer notes](docs/src/maintainer-notes.md)
 
 ## Acknowledgements

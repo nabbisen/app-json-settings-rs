@@ -5,6 +5,61 @@ The Rust snippets on this page are illustrative, not compiled or run by CI
 show pre-2.5.0 code and would not compile against the current crate even if
 verified.
 
+## Upgrading from 2.0.x
+
+Start here if you are still on any 2.0.x release.
+
+**Go straight to the latest release. Do not upgrade incrementally.** 2.3.0
+and 2.4.0 do not compile on any Windows target, a defect fixed in 2.4.1. An
+incremental upgrade stops dead on Windows at 2.3.0.
+
+**One source change may be required.** `ConfigError` gained two variants
+across 2.1.0 and 2.2.0 — see the disclosures below — so an exhaustive
+`match` written against 2.0.x will not compile. Reproduced against the
+current crate:
+
+```
+error[E0004]: non-exhaustive patterns: `&ConfigError::InvalidPathComponent(_)` and `&ConfigError::Platform(_)` not covered
+  --> src/main.rs:8:11
+   |
+ 8 |     match error {
+   |           ^^^^^ patterns `&ConfigError::InvalidPathComponent(_)` and `&ConfigError::Platform(_)` not covered
+```
+
+The fix is one match arm:
+
+```rust
+match error {
+    ConfigError::Io(_) => "io",
+    ConfigError::Serialize(_) => "serialize",
+    ConfigError::Deserialize(_) => "deserialize",
+    _ => "other",
+}
+```
+
+**Three behavioral changes cross this upgrade**, none requiring a code
+change:
+
+* The default save mode became `SaveMode::Atomic` in 2.3.0 (previously a
+  direct overwrite). See [Save behavior](save-behavior.md).
+* Newly created settings files are `0600` on Unix since 2.5.0. Existing
+  files keep whatever mode they already have. See
+  [Save behavior](save-behavior.md#permissions-on-unix).
+* `ConfigManager::new()` stopped panicking when the executable name cannot
+  be resolved, in 2.1.0. It falls back to the literal name `app` instead.
+  **If the settings directory's identity is load-bearing for your
+  application, use [`for_app()`](api-guide.md) instead of `new()`.**
+  `for_app()` takes an explicit name, so nothing is derived and there is no
+  fallback to silently take, and since 2.5.0 it reports storage-root
+  resolution failure rather than substituting a relative path.
+
+**MSRV moved from `1.90.0` (2.0.3) to `1.85.0` (2.0.4 onward)** — a
+loosening, not a tightening. Worth stating plainly because the opposite is
+the natural assumption for a version bump. The corollary matters too: the
+loosening only helps if this crate was your binding constraint. If your
+own MSRV floor is set by a different dependency, this change leaves you
+exactly where you were.
+
 ## v2.0.x to 2.1.0
 
 `with_root_dir()` was added as the preferred name for caller-provided storage
@@ -12,6 +67,13 @@ roots. Existing `at_custom_dir()` code still works.
 
 Pure UWP support is available through either host-resolved roots or the optional
 `uwp` feature.
+
+**This release added `ConfigError::Platform`.** `ConfigError` is not
+`#[non_exhaustive]`, so adding a variant breaks any exhaustive `match` on
+it — a source-breaking change. **This should have shipped as a major
+version and shipped as a minor instead.** If you have an exhaustive match
+on `ConfigError`, see [Upgrading from 2.0.x](#upgrading-from-20x) above for
+the compiler error and the fix.
 
 ## 2.1.0 to 2.2.0
 
@@ -28,6 +90,13 @@ let manager = manager.try_with_filename("settings.json")?;
 ```
 
 `with_filename()` remains available for v2.x compatibility.
+
+**This release added `ConfigError::InvalidPathComponent`.** Same issue as
+`Platform` in 2.1.0: `ConfigError` is not `#[non_exhaustive]`, so this also
+breaks any exhaustive `match` on it. **This should have shipped as a major
+version and shipped as a minor instead.** See
+[Upgrading from 2.0.x](#upgrading-from-20x) above for the compiler error
+and the fix.
 
 
 ## 2.2.0 to 2.3.0

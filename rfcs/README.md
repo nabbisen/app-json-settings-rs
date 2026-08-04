@@ -4,9 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 039 | [Homes for consumer-facing answers](./proposed/039-homes-for-consumer-answers.md) | P2 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -29,6 +27,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 036 | [Documentation example verification](./done/036-documentation-example-verification.md) | 2.5.1 |
 | 037 | [Migration guidance for 2.0.x upgraders](./done/037-migration-guidance-for-2-0-x-upgraders.md) | 2.6.0 |
 | 038 | [Fail-closed constructor for executable-derived identity](./done/038-fail-closed-constructor.md) | 2.6.0 |
+| 039 | [Homes for consumer-facing answers](./done/039-homes-for-consumer-answers.md) | main (provisional — update to the release version when it ships) |
 
 ## Archive
 

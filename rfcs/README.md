@@ -6,6 +6,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 | ID | Title | Priority |
 |---:|---|---|
+| 032 | [API surface completeness](./proposed/032-api-surface-completeness.md) | P2 |
 | 040 | [`uwp` feature disposition](./proposed/040-uwp-feature-disposition.md) | P2 |
 
 ## Implemented

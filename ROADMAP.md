@@ -178,7 +178,7 @@ each gets its own RFC.
 |---:|---:|---|---|---|
 | 1 | 035 | Documentation currency and recovery example | P1 | Implemented — 2.5.1 |
 | 2 | 036 | Documentation example verification | P1 | Implemented — 2.5.1 |
-| 3 | 032 | API surface completeness | P2 | Not yet written |
+| 3 | 032 | API surface completeness | P2 | Proposed — one owner decision inside |
 | 4 | 040 | `uwp` feature disposition | P2 | Proposed — decision RFC, no implementation |
 | 5 | 037 | Migration guidance for 2.0.x upgraders | P1 | Implemented — 2.6.0 |
 | 6 | 038 | Fail-closed constructor for executable-derived identity | P1 | Implemented — 2.6.0 |

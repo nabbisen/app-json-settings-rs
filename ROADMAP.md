@@ -179,6 +179,7 @@ each gets its own RFC.
 | 2 | 036 | Documentation example verification | P1 | Implemented — 2.5.1 |
 | 3 | 032 | API surface completeness | P2 | Not yet written |
 | 4 | — | `uwp` feature disposition | P2 | Not yet written |
+| 5 | 037 | Migration guidance for 2.0.x upgraders | P1 | Proposed — next, ahead of 3 and 4 |
 
 **This milestone is not one release.** It was originally scoped as 2.6.0, on the
 assumption that its slices would ship together. Slices 1 and 2 turned out to

@@ -4,7 +4,9 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-No proposed RFCs at this time.
+| ID | Title | Priority |
+|---:|---|---|
+| 040 | [`uwp` feature disposition](./proposed/040-uwp-feature-disposition.md) | P2 |
 
 ## Implemented
 

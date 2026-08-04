@@ -83,6 +83,24 @@ fail-closed; choose `try_new()` when the executable-derived name is what
 you actually want, and `for_app()` when you have a stable name to supply
 directly.
 
+### Inspecting what was resolved
+
+A third remedy for the collision hazard above needs no constructor change
+at all: `folder_path()` returns the directory `ConfigManager` resolved, so
+a caller that wants to keep using `new()` can assert the result matches
+expectation instead of switching to `try_new()` or `for_app()`.
+
+```rust
+let manager = ConfigManager::<Settings>::new();
+assert_eq!(
+    manager.folder_path().file_name(),
+    Some(std::ffi::OsStr::new("my-app")),
+);
+```
+
+If the assertion fails, the executable-name fallback fired and produced
+something other than `"my-app"` — most likely the literal `"app"`.
+
 ## File names
 
 ```rust

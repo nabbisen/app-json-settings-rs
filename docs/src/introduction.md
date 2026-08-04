@@ -24,6 +24,11 @@ The crate is not:
 * a schema migration engine;
 * a general Windows storage abstraction.
 
+It does not take a logging or tracing dependency, either. Failures are
+reported through `Result`, not logged — so a caller who wants to know that a
+silent fallback fired must ask, via `try_new()` or `for_app()`, rather than
+expect a warning to appear on its own.
+
 When the settings model becomes large or needs migrations, prefer to keep the
 migration policy in the application layer and use this crate only for the
 persistence primitive.

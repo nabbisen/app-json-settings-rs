@@ -27,6 +27,12 @@ This rule exists because `ConfigError` already broke it once:
 `match` downstream. See [Migration to v2](migration-v2.md) for the
 disclosure and upgrade guidance.
 
+## Consumer-answer rule
+
+When a reply to a consumer contains an answer of general interest, put the
+answer in the relevant `docs/src/` page and let the reply cite it. A reply
+reaches one team; the documentation reaches the next one to ask.
+
 ## Release gate
 
 The CI workflow runs the following on every push:

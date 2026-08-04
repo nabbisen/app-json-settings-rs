@@ -1,6 +1,6 @@
 # RFC 037 — Migration guidance for 2.0.x upgraders
 
-**Status.** Implemented
+**Status.** Implemented (2.6.0)
 **Tracks.** Upgrade guidance, and honest disclosure of a compatibility break we shipped.
 **Touches.** `docs/src/migration-v2.md`, `README.md`, `docs/src/maintainer-notes.md`.
 **Handoff.** [implementation handoff](../handoffs/037-migration-guidance-for-2-0-x-upgraders/implementation-handoff.md)

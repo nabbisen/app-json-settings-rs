@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 037 Migration guidance for 2.0.x upgraders
 
 **Governing RFC.** [RFC 037](../../done/037-migration-guidance-for-2-0-x-upgraders.md)
-**Status.** Inherited from RFC 037 (Implemented).
+**Status.** Inherited from RFC 037 (Implemented, 2.6.0).
 **Milestone.** M3 — additional slice, ahead of slices 3 and 4.
 
 ## Purpose

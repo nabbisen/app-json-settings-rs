@@ -101,9 +101,16 @@ affected reader needs:
   * newly created settings files are `0600` on Unix since 2.5.0, existing files
     keep their mode;
   * `ConfigManager::new()` no longer panics when the executable name cannot be
-    resolved (2.1.0); it falls back to `app`.
-* **MSRV is not a barrier** — it moved from `1.90.0` in 2.0.3 to `1.85.0`, a
-  loosening. Worth stating because the opposite is the reasonable assumption.
+    resolved (2.1.0); it falls back to the literal name `app`. **If the settings
+    directory's identity is load-bearing for the application, use `for_app()`
+    instead** — it takes an explicit name, so no derivation happens and there is
+    nothing to fall back from, and it reports storage-root resolution failure
+    rather than substituting a relative path.
+* **MSRV moved from `1.90.0` in 2.0.3 to `1.85.0`** — a loosening, not a
+  tightening. Worth stating because the opposite is the reasonable assumption.
+  The corollary is worth stating too: the loosening only helps if this crate was
+  the binding constraint. A consumer whose floor is set by another dependency is
+  left where it was.
 
 ### 2. Disclose the break at the steps where it happened
 

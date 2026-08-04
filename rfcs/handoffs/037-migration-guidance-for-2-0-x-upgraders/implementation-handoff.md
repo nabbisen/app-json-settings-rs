@@ -55,9 +55,18 @@ Near the top — it is the first thing an affected reader needs. Cover:
 * **Three behavioral changes crossed**, none needing code edits: default save
   mode became `SaveMode::Atomic` (2.3.0); new files are `0600` on Unix since
   2.5.0 while existing files keep their mode; `new()` no longer panics when the
-  executable name is unresolvable (2.1.0), falling back to `app`.
-* **MSRV is not a barrier** — `1.90.0` in 2.0.3, `1.85.0` now. A loosening.
-  State it, because the opposite is the natural assumption.
+  executable name is unresolvable (2.1.0), falling back to the literal name
+  `app`.
+* **On that last one, point affected readers at `for_app()`.** A consumer whose
+  settings-directory identity is load-bearing should not use `new()` at all:
+  `for_app()` takes an explicit name, so nothing is derived and nothing can fall
+  back, and it reports storage-root resolution failure instead of substituting a
+  relative path. This addition comes from a real 2.0.x consumer who read the
+  fallback as a robustness improvement and found it was the opposite for them.
+* **MSRV moved `1.90.0` → `1.85.0`** — a loosening, not a tightening. State it,
+  because the opposite is the natural assumption. **Also state the corollary:**
+  it only helps if this crate was the binding constraint; a consumer whose floor
+  is set by another dependency gains nothing.
 
 ### 2. Disclose the break where it happened
 

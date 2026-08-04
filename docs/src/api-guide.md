@@ -29,14 +29,34 @@ executable name.
 let manager = ConfigManager::<Settings>::new();
 ```
 
-This is convenient for examples and small tools, but `for_app()` is more stable
-for production applications, and it is the only constructor that reports
-platform-resolution failure. `new()` cannot report it without an API break —
-if the platform configuration directory cannot be resolved, `new()` falls
-back to the current directory rather than failing. Applications that run
-where this is a real possibility (services or containers without a user
-environment) should prefer `for_app()`, or supply a path explicitly with
-`with_root_dir()`.
+This is convenient for examples and small tools, but it cannot report
+failure without an API break, so it falls back silently in two places
+instead:
+
+* if the platform configuration directory cannot be resolved, it falls back
+  to the current directory;
+* if the current executable's name cannot be determined or is not a safe
+  path component, it falls back to the literal name `"app"`.
+
+**The second fallback is a fixed constant.** Any two executables that both
+hit it resolve to the same settings file and can silently read and
+overwrite each other's settings. If that is not acceptable, prefer
+`try_new()` or `for_app()` below.
+
+### `ConfigManager::try_new()`
+
+Fail-closed counterpart to `new()`: the same executable-derived identity,
+but returns `ConfigError::Platform` instead of substituting either
+fallback.
+
+```rust
+let manager = ConfigManager::<Settings>::try_new()?;
+```
+
+Prefer this over `new()` when you genuinely want the executable's derived
+name but sharing a settings file with another executable that hits the
+same fallback is not acceptable. If you have a stable application identity
+to supply instead, `for_app()` needs no derivation at all.
 
 ### `with_root_dir(path)`
 
@@ -48,6 +68,20 @@ let manager = ConfigManager::<Settings>::new().with_root_dir("./config");
 
 Use this for tests, portable mode, app-managed storage locations, and sandboxed
 hosts.
+
+### Choosing a constructor
+
+| Constructor | Identity | On failure |
+|---|---|---|
+| `new()` | Derived from the executable name | Falls back silently (`.` and `"app"`) |
+| `try_new()` | Derived from the executable name | Returns `ConfigError::Platform` |
+| `for_app(name)` | Explicit, caller-supplied | Returns `ConfigError::Platform` (directory only — there is nothing to derive) |
+| `with_root_dir(path)` | Caller-supplied directory | N/A — the caller already resolved it |
+
+`new()` is the convenient default. `try_new()` and `for_app()` are both
+fail-closed; choose `try_new()` when the executable-derived name is what
+you actually want, and `for_app()` when you have a stable name to supply
+directly.
 
 ## File names
 

@@ -70,6 +70,32 @@ fn new_does_not_panic() {
 }
 
 #[test]
+fn try_new_succeeds_in_normal_test_environment() {
+    let manager = ConfigManager::<TestSettings>::try_new()
+        .expect("try_new should succeed when both resolution steps succeed");
+    assert!(!manager.folder_path().as_os_str().is_empty());
+}
+
+#[test]
+fn new_still_falls_back_rather_than_erroring() {
+    // new() cannot be forced through its failure branches without mutating
+    // the real environment (unsafe in this edition, and would race the
+    // parallel test harness) -- the failure branches themselves are
+    // exercised directly against the private seam in `core::dir::tests`.
+    // This is the regression guard that is actually achievable here: it
+    // proves new()'s folder_path is still composed from the exact same
+    // fallback-applying expression, computed independently, so a future
+    // drift between new() and its underlying derivation would show up as a
+    // mismatch rather than passing silently.
+    let expected_folder = crate::core::dir::default_config_dir()
+        .unwrap_or_else(|_| std::path::PathBuf::from("."))
+        .join(crate::core::dir::default_runtime_app_name());
+
+    let manager = ConfigManager::<TestSettings>::new();
+    assert_eq!(manager.folder_path(), expected_folder);
+}
+
+#[test]
 fn with_root_dir_works_independently_of_platform_resolution() {
     // with_root_dir() overwrites the folder path unconditionally, so it must
     // keep working as the documented escape hatch even in an environment

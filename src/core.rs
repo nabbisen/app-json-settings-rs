@@ -10,7 +10,7 @@ use crate::Result;
 use crate::core::constant::DEFAULT_FILE_NAME;
 #[cfg(all(windows, feature = "uwp"))]
 use crate::core::dir::uwp_local_folder_dir;
-use crate::core::dir::{default_config_dir, default_runtime_app_name};
+use crate::core::dir::{app_name_from, default_config_dir, default_runtime_app_name};
 use crate::core::json::{JsonFormat, deserialize, serialize};
 use crate::core::save::save_to_path;
 use crate::core::validation::{validate_path_component, validate_plain_file_name};
@@ -58,19 +58,50 @@ where
     /// should use [`with_root_dir`](Self::with_root_dir) or the optional
     /// `uwp` feature instead.
     ///
-    /// This constructor cannot report storage-root resolution failure without
-    /// an API break, so it falls back to the current directory when the
-    /// platform configuration directory cannot be determined (for example, no
-    /// `HOME` or `%APPDATA%` in the environment). For production applications,
-    /// prefer [`for_app`](Self::for_app): it uses an explicit stable
-    /// application identity instead of deriving one from the executable file
-    /// name, and it reports resolution failure instead of silently falling
-    /// back.
+    /// This constructor cannot report failure without an API break, so it
+    /// falls back silently in two places instead of erroring:
+    ///
+    /// * if the platform configuration directory cannot be determined (for
+    ///   example, no `HOME` or `%APPDATA%` in the environment), it falls back
+    ///   to the current directory (`.`);
+    /// * if the current executable's name cannot be determined, or is not a
+    ///   safe path component, it falls back to the literal name `"app"`.
+    ///
+    /// **The second fallback is a fixed constant.** Any two executables that
+    /// both hit it resolve to the same settings file and can silently read
+    /// and overwrite each other's settings. If that is not acceptable, use
+    /// [`try_new`](Self::try_new) to fail instead of falling back, or
+    /// [`for_app`](Self::for_app) to supply an explicit identity so nothing
+    /// is derived in the first place.
     pub fn new() -> Self {
         let folder_path = default_config_dir()
             .unwrap_or_else(|_| PathBuf::from("."))
             .join(default_runtime_app_name());
         Self::from_parts(folder_path, DEFAULT_FILE_NAME)
+    }
+
+    /// Creates a config manager using the OS-standard config directory and
+    /// the current executable name, failing rather than silently
+    /// substituting either.
+    ///
+    /// Fail-closed counterpart to [`new`](Self::new): returns
+    /// [`ConfigError::Platform`] if the platform configuration directory
+    /// cannot be resolved, or if the current executable's name cannot be
+    /// determined or is not a safe path component -- the two cases `new()`
+    /// papers over with `.` and `"app"` respectively. Both failures report
+    /// through the same variant with distinguishable messages, since adding
+    /// a dedicated variant would itself be a breaking change: `ConfigError`
+    /// is not `#[non_exhaustive]`, so a new variant breaks any exhaustive
+    /// `match` on it.
+    ///
+    /// Prefer this over `new()` when you genuinely want the executable's
+    /// derived name but sharing a settings file with another executable
+    /// that hits the same fallback is not acceptable. If you have a stable
+    /// application identity to supply instead, prefer
+    /// [`for_app`](Self::for_app), which needs no derivation at all.
+    pub fn try_new() -> Result<Self> {
+        let folder_path = default_config_dir()?.join(app_name_from(std::env::current_exe().ok())?);
+        Ok(Self::from_parts(folder_path, DEFAULT_FILE_NAME))
     }
 
     /// Creates a config manager for an explicit application name.

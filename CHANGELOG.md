@@ -1,5 +1,44 @@
 # Changelog
 
+## 2.6.0
+
+### Added
+
+* Added `ConfigManager::try_new()`, a fail-closed counterpart to `new()`.
+  `new()` derives an application name from the current executable and falls
+  back silently to the literal name `"app"` if that name cannot be
+  determined or is not a safe path component — a fallback that is a fixed
+  constant, so any two executables that both hit it resolve to the same
+  settings file and can silently read and overwrite each other's settings.
+  `try_new()` returns `ConfigError::Platform` instead of substituting
+  either of `new()`'s two fallbacks (the executable-name one described
+  above, and the platform-configuration-directory one `for_app()` already
+  reported since 2.5.0).
+
+### Changed
+
+* `new()`'s rustdoc now states both of its silent fallbacks, including the
+  previously undocumented executable-name one and the collision it can
+  cause.
+* `docs/src/api-guide.md` gains a constructor comparison across `new()`,
+  `try_new()`, `for_app()`, and `with_root_dir()`.
+* `docs/src/platform-behavior.md` documents the collision under
+  default-root resolution.
+
+`new()`'s behavior is unchanged — this closes a documentation and API gap
+without touching what `new()` itself does. No new `ConfigError` variant:
+both of `try_new()`'s failure sources report through the existing
+`ConfigError::Platform`, since `ConfigError` is not `#[non_exhaustive]` and
+adding a variant would itself be a breaking change (see
+`docs/src/migration-v2.md` for the disclosure of that pre-existing issue).
+
+### Compatibility
+
+* Additive only. One new method; no signature or behavior change to
+  anything existing.
+* No new `ConfigError` variant, no new dependency.
+* Minor release, not a patch.
+
 ## 2.5.1
 
 ### Changed

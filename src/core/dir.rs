@@ -64,15 +64,58 @@ pub fn default_config_dir() -> Result<PathBuf> {
     config_dir_from(|name| std::env::var_os(name))
 }
 
+/// Derives an application name from an executable path.
+///
+/// This is a pure, testable seam, following [`config_dir_from`]'s pattern:
+/// [`try_new`](crate::ConfigManager::try_new) and
+/// [`default_runtime_app_name`] both call this with the real
+/// `std::env::current_exe()` result, but a test can drive it directly with
+/// a stub path or `None` -- `current_exe()` cannot be made to fail from
+/// inside a test otherwise, so without this seam the failure path would be
+/// untestable.
+///
+/// Fails if `exe` is `None` (the executable path could not be determined)
+/// or if its file stem is not a safe path component (missing, or rejected
+/// by [`is_safe_path_component`](crate::core::validation::is_safe_path_component)).
+/// The two failures produce distinguishable messages.
+pub fn app_name_from(exe: Option<PathBuf>) -> Result<String> {
+    let exe = exe.ok_or_else(|| {
+        ConfigError::Platform(
+            "could not determine the current executable path, so no application name \
+             could be derived; use for_app() to supply an explicit application name, \
+             or try_new() to fail instead of falling back to \"app\""
+                .to_string(),
+        )
+    })?;
+
+    let stem = exe
+        .file_stem()
+        .map(|name| name.to_string_lossy().to_string())
+        .unwrap_or_default();
+
+    if crate::core::validation::is_safe_path_component(&stem) {
+        Ok(stem)
+    } else {
+        Err(ConfigError::Platform(format!(
+            "the current executable's name is not a safe application name ({stem:?}); \
+             use for_app() to supply an explicit application name, or try_new() to fail \
+             instead of falling back to \"app\""
+        )))
+    }
+}
+
+/// Derives an application name from the current executable, falling back to
+/// the literal name `"app"` if it cannot be determined or is unsafe.
+///
+/// **This fallback is a fixed constant.** Any two executables that both hit
+/// it resolve to the same name, and therefore the same settings file under
+/// [`ConfigManager::new`](crate::ConfigManager::new) -- one can silently
+/// read and overwrite the other's settings. Prefer
+/// [`try_new`](crate::ConfigManager::try_new) to fail instead of falling
+/// back, or [`for_app`](crate::ConfigManager::for_app) to supply an
+/// explicit name and avoid derivation entirely.
 pub fn default_runtime_app_name() -> String {
-    std::env::current_exe()
-        .ok()
-        .and_then(|path| {
-            path.file_stem()
-                .map(|name| name.to_string_lossy().to_string())
-        })
-        .filter(|name| crate::core::validation::is_safe_path_component(name))
-        .unwrap_or_else(|| "app".to_string())
+    app_name_from(std::env::current_exe().ok()).unwrap_or_else(|_| "app".to_string())
 }
 
 #[cfg(all(windows, feature = "uwp"))]

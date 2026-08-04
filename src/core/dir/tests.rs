@@ -32,6 +32,57 @@ fn assert_platform_error_mentions(error: ConfigError, needles: &[&str]) {
     }
 }
 
+mod app_name_derivation {
+    use super::*;
+
+    #[test]
+    fn normal_path_returns_the_stem() {
+        let name = app_name_from(Some(PathBuf::from("/usr/local/bin/my-app")))
+            .expect("a normal executable path should derive a name");
+        assert_eq!(name, "my-app");
+    }
+
+    #[test]
+    fn none_is_an_error() {
+        let error = app_name_from(None).expect_err("a missing executable path should fail");
+        assert_platform_error_mentions(error, &["executable path", "for_app", "try_new"]);
+    }
+
+    #[test]
+    fn unsafe_stem_is_an_error() {
+        // No extension, so file_stem() is the whole file name -- ':' fails
+        // is_safe_path_component() regardless of host OS.
+        let error = app_name_from(Some(PathBuf::from("weird:name")))
+            .expect_err("a stem containing ':' should fail");
+        assert_platform_error_mentions(
+            error,
+            &["not a safe application name", "for_app", "try_new"],
+        );
+    }
+
+    #[test]
+    fn the_two_failure_messages_are_distinguishable() {
+        let none_message = match app_name_from(None).expect_err("None should fail") {
+            ConfigError::Platform(message) => message,
+            other => panic!("expected ConfigError::Platform, got {other:?}"),
+        };
+        let unsafe_stem_message =
+            match app_name_from(Some(PathBuf::from("weird:name"))).expect_err("should fail") {
+                ConfigError::Platform(message) => message,
+                other => panic!("expected ConfigError::Platform, got {other:?}"),
+            };
+
+        assert_ne!(
+            none_message, unsafe_stem_message,
+            "a reader should be able to tell which of the two failures occurred"
+        );
+        assert!(none_message.contains("executable path"));
+        assert!(!unsafe_stem_message.contains("executable path"));
+        assert!(unsafe_stem_message.contains("not a safe application name"));
+        assert!(!none_message.contains("not a safe application name"));
+    }
+}
+
 #[cfg(target_os = "windows")]
 mod windows_resolution {
     use super::*;

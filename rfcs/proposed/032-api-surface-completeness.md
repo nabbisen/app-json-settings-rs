@@ -3,6 +3,7 @@
 **Status.** Proposed
 **Tracks.** Public API that is documented, and validation that means what callers assume.
 **Touches.** `docs/src/api-guide.md`, `Cargo.toml` (docs.rs metadata), and — depending on one decision — `src/core/validation.rs`.
+**Handoff.** [implementation handoff](../handoffs/032-api-surface-completeness/implementation-handoff.md)
 **Relates to.** [RFC 025](../done/025-path-safety-and-explicit-app-identity.md), which declared OS-specific filename legality a non-goal.
 
 ## Summary

@@ -7,13 +7,13 @@
 
 ## Summary
 
-The optional `uwp` feature has never been verified to work. It compiles, and
-that is the entirety of what is known about it. This RFC states the options and
-recommends one, but the choice is a compatibility decision reserved for the
-project owner.
+The optional `uwp` feature has never been verified to work. It compiles, and that
+is the entirety of what is known about it.
 
-**No option is implemented here.** This RFC exists to make the decision, not to
-pre-empt it.
+**Decided: verify it once, manually** (option A). The options and the reasoning
+that led there are recorded below, followed by the verification procedure. The
+result of that run closes this RFC, or reopens the choice in favour of
+deprecation.
 
 ## The situation
 
@@ -59,18 +59,21 @@ invention.
 
 ### A — Verify it, then support it properly
 
-Someone with Windows tooling packages a minimal MSIX application, calls
-`at_uwp_local_folder()`, and records the result. If it works, the feature becomes
-genuinely supported and this RFC closes. If it does not, we have found a real bug
-and choose again from a better position.
+**Chosen by the project owner**, as a single manual run rather than CI
+automation. The procedure is in a section of its own below.
 
-**Cost:** roughly half a day for someone with Windows dev tooling — MSIX
-packaging, an app manifest, likely a developer certificate.
-**Blocker:** nobody on this project has that environment.
-**Live possibility:** the reply sent to the downstream consumer on 2026-08-04
-asked whether this is within reach for them. They volunteered to test a
-pre-release against their usage. **Their answer changes this option from
-theoretical to available.**
+**Why not CI.** Getting package identity on a GitHub Actions Windows runner is
+plausible but not cheap: either build and install an MSIX (packaging tools, a
+signing certificate, trusting it, then capturing output from a packaged process),
+or borrow an installed package's identity with `Invoke-CommandInDesktopPackage`,
+which runs detached so results must go through a file. Both are real engineering,
+and both are fragile in a way that produces flaky CI — for a six-line code path
+that has not changed since 2.1.0 apart from RFC 027's fix.
+
+A single recorded run converts *never verified* into *verified once, at a stated
+version, by a stated person*. That is a genuine improvement, and the regression
+risk is small because the code does not move. **It is not continuous verification
+and must not be described as such.**
 
 ### B — Mark it experimental
 
@@ -102,23 +105,109 @@ Leave it compiling, unverified, and undocumented as such. Rejected: the state is
 already recorded as a residual risk in three release reports, and carrying it
 silently is what the project has spent this milestone correcting elsewhere.
 
-## Recommendation
+## Decision
 
-**Wait briefly for the consumer's answer, then take A or C.**
+**Option A, by the project owner** — verified once, manually, per the procedure
+below.
 
-If verification is within their reach, take **A** — it is the only option that
-converts an unknown into a fact, and every other option is a way of managing not
-knowing.
+A is the only option that converts an unknown into a fact; B and C are both ways
+of managing not knowing. B in particular would leave the feature in exactly its
+current state with a new label, and it has already spent three releases broken
+without anyone noticing — which is what that label tends to produce.
 
-If it is not, take **C**. Between B and C, deprecation is the more honest
-resolution: our own documentation has recommended against this feature since RFC
-021 shipped it, and a deprecation notice simply makes the API say what the
-documentation already says. "Experimental" would leave it in the same
-unverified state with a new label.
+**If verification fails**, C becomes the recommendation and the failure is the
+argument for it.
 
-**Not recommended: deciding this today.** The consumer's answer is outstanding
-and materially changes the option set. If no answer arrives within a reasonable
-window, that itself is the answer and C follows.
+## Verification procedure
+
+**Status of this procedure: reasoned, not tested.** Nobody on this project runs
+Windows. The probe below is confirmed to compile for
+`x86_64-pc-windows-gnu --features uwp`; the identity mechanics are from
+documented Windows behavior and may need adjusting on the day.
+
+### What it verifies, and what it does not
+
+* **Verifies:** that `at_uwp_local_folder()` resolves without error, returns a
+  usable path, and that a save-then-load round trip works in that directory.
+* **Does not verify:** behavior inside a real packaged application of our own. If
+  identity is borrowed from another installed package, `LocalFolder` returns that
+  package's directory — which still exercises the whole call chain, since the API
+  contract is "the current package's local folder," but is not an end-to-end test.
+
+### The probe
+
+Confirmed to compile. `Cargo.toml`:
+
+```toml
+[dependencies]
+app-json-settings = { version = "2.6", features = ["uwp"] }
+serde = { version = "1", features = ["derive"] }
+```
+
+`src/main.rs`:
+
+```rust
+use app_json_settings::ConfigManager;
+use serde::{Deserialize, Serialize};
+use std::io::Write;
+
+#[derive(Default, Debug, Serialize, Deserialize)]
+struct Probe { runs: u32 }
+
+fn main() {
+    let mut out = String::new();
+    match ConfigManager::<Probe>::new().at_uwp_local_folder() {
+        Ok(manager) => {
+            out.push_str(&format!("resolved path: {}\n", manager.path().display()));
+            match manager.update(|p| p.runs += 1) {
+                Ok(v) => out.push_str(&format!("save + load OK: {v:?}\n")),
+                Err(e) => out.push_str(&format!("save + load FAILED: {e}\n")),
+            }
+        }
+        Err(e) => out.push_str(&format!("at_uwp_local_folder FAILED: {e}\n")),
+    }
+    let dir = std::env::var("USERPROFILE").unwrap_or_else(|_| ".".to_string());
+    let target = format!("{dir}\\uwp-probe-result.txt");
+    if let Ok(mut f) = std::fs::File::create(&target) {
+        let _ = f.write_all(out.as_bytes());
+    }
+}
+```
+
+It writes to a file rather than stdout deliberately: a process launched with
+borrowed package identity is detached, so console output is not reliably
+capturable.
+
+### Running it with package identity
+
+`ApplicationData::Current()` throws without package identity, so a plain `.exe`
+run proves nothing except that it throws. Give it identity by whichever route is
+cheapest on the machine:
+
+1. `cargo build --release`
+2. List installed packages:
+   `Get-AppxPackage | Select-Object Name, PackageFamilyName`
+3. Run the probe inside one package's identity using
+   `Invoke-CommandInDesktopPackage`, supplying the package family name, its
+   `AppId`, and the path to the probe executable.
+4. Read the result file written under `%USERPROFILE%`.
+
+If that cmdlet proves awkward, a minimal MSIX or a sparse package achieves the
+same thing at higher setup cost. **Any route that gives the process package
+identity is acceptable** — the identity is the point, not the packaging method.
+
+### What to record
+
+The result file's contents verbatim, the crate version tested, the Windows
+version, and which identity route was used. That becomes this RFC's evidence.
+
+### Outcomes
+
+* **Resolves and round-trips** — the feature is verified. This RFC closes under
+  A, the documentation drops its "runtime untested" caveat, and the state is
+  recorded as *verified once at a stated version*, not continuously.
+* **Fails** — a third defect in this feature, found the first time anyone ran it.
+  That is strong evidence for option C, and the failure is the argument.
 
 ## Non-goals
 
@@ -139,10 +228,7 @@ window, that itself is the answer and C follows.
   it would be the third defect found in this feature, and would argue for C
   regardless.
 
-## Decision required from the project owner
+## Remaining
 
-Which of A, B, or C — and, if A, whether to wait for the consumer's response or
-seek verification another way.
-
-This is a compatibility decision. Per §2.5 and §6.7 it is not the architect's to
-make, and this RFC deliberately implements none of the options.
+The verification run itself, by the project owner. Its result closes this RFC
+under A, or reopens the choice in favour of C.

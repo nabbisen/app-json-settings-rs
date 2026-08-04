@@ -48,21 +48,31 @@ drive separators, and control characters. It does not reject `CON`, `PRN`, `AUX`
 `NUL`, `COM1`–`COM9`, or `LPT1`–`LPT9`, which Windows treats as device names in
 any directory and at any case.
 
-So `for_app("CON")` returns `Ok`, and the resulting path cannot be created on
-Windows.
+Measured — every reserved name passes every validator:
 
-**Why this is more than a curiosity.** `for_app()` is the fail-closed production
-constructor. It takes a name, validates it, and returns `Result`. A caller
-reasonably reads a successful return as "this name is usable." On Windows, for
-this closed set of names, it is not — the failure surfaces later as an
-`io::Error` from `create_dir_all`, at save time, with a message that does not
-mention the real cause.
+```
+name   safe_comp    plain_file   for_app    try_with_filename
+CON    true         true         true       true
+NUL    true         true         true       true
+con    true         true         true       true
+```
 
-That is the same false-coverage shape as RFC 034: a `Result` that appears to
-cover a class of failure it does not carry.
+**The filename case is the serious one.** `try_with_filename("NUL")` returns
+`Ok`, and on Windows `NUL` refers to the null device *in any directory*. So
+`save()` writes to it and **succeeds while discarding the data**, and `load()`
+reads EOF and finds an empty file. That is silent data loss, with no diagnostic —
+the same shape as the collision hazard RFC 038 documented.
 
-**The failure is loud, not silent** — this is not a data-loss risk. The cost is a
-confusing error at the wrong moment instead of a clear one at construction.
+The directory case is milder: `for_app("CON")` returns `Ok` and then fails at
+`create_dir_all` with an `io::Error` that does not mention the real cause. Loud,
+but late and confusing.
+
+Both are the false-coverage shape RFC 034 and RFC 038 corrected elsewhere: a
+`Result` that appears to cover a class of failure it does not carry.
+
+**This is not a security issue, and should not be written as one.** No privilege
+boundary is crossed — same user, that user's own configuration directory, no
+escalation and no escape. It is a data-integrity problem.
 
 *Reasoned from the documented Win32 behavior; not verified empirically on
 Windows, and the implementation should say so if it documents the mechanism.*
@@ -135,18 +145,18 @@ Windows, macOS, and Unix."* Rejecting on Windows only would break that principle
 rejecting everywhere preserves it, at the cost of a Linux application being
 unable to call itself `con`.
 
-**Recommendation: B.** It makes `for_app()`'s `Result` mean what callers already
-assume, which is the failure this project has now corrected twice elsewhere
-(RFC 034, RFC 038). The set is closed and small, so it does not reopen RFC 025's
-non-goal. The behavior change is narrow: `for_app()` on one of 22 names goes from
-`Ok` to `Err(InvalidPathComponent)`, and on Windows those names never worked.
+**Decided by the project owner: option B.**
 
-**Against B, honestly:** it is a behavior change for an application legitimately
-named one of those strings on a non-Windows platform. That application exists
-only hypothetically, but the change would be real for it, and it would be a minor
-release rather than a patch.
+It makes validation mean what callers already assume, which is the failure this
+project has corrected twice elsewhere (RFC 034, RFC 038). The set is closed and
+small, so it does not reopen RFC 025's non-goal. Decisive factor: option A would
+leave `try_with_filename("NUL")` silently discarding settings on Windows, and
+documenting a silent-data-loss path is not a resolution.
 
-**Decision required from the project owner.**
+**The cost, recorded honestly:** it is a behavior change for an application
+legitimately named one of those strings on a non-Windows platform. That
+application is hypothetical, but the change would be real for it, and it makes
+this a minor release rather than a patch.
 
 ### 4. Optional — `pub` that is not public
 

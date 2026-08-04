@@ -164,7 +164,8 @@ candidates.
 
 ### M3 — Documentation and API completeness
 
-Status: slices 1 and 2 implemented, releasing as 2.5.1. Priority: **P2**.
+Status: slices 1 and 2 released in 2.5.1; slices 5 and 6 proposed, targeting
+2.6.0. Priority: **P2**.
 
 **Objective.** Make the documentation true, verified, and complete, and close the
 gap between the documented API surface and the real one.
@@ -179,7 +180,8 @@ each gets its own RFC.
 | 2 | 036 | Documentation example verification | P1 | Implemented — 2.5.1 |
 | 3 | 032 | API surface completeness | P2 | Not yet written |
 | 4 | — | `uwp` feature disposition | P2 | Not yet written |
-| 5 | 037 | Migration guidance for 2.0.x upgraders | P1 | Proposed — next, ahead of 3 and 4 |
+| 5 | 037 | Migration guidance for 2.0.x upgraders | P1 | Proposed — next |
+| 6 | 038 | Fail-closed constructor for executable-derived identity | P1 | Proposed — after 5, ahead of 3 and 4 |
 
 **This milestone is not one release.** It was originally scoped as 2.6.0, on the
 assumption that its slices would ship together. Slices 1 and 2 turned out to

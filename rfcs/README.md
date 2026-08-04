@@ -7,6 +7,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | ID | Title | Priority |
 |---:|---|---|
 | 037 | [Migration guidance for 2.0.x upgraders](./proposed/037-migration-guidance-for-2-0-x-upgraders.md) | P1 |
+| 038 | [Fail-closed constructor for executable-derived identity](./proposed/038-fail-closed-constructor.md) | P1 |
 
 ## Implemented
 

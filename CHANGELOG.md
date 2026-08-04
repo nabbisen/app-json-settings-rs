@@ -24,13 +24,23 @@
   `try_new()`, `for_app()`, and `with_root_dir()`.
 * `docs/src/platform-behavior.md` documents the collision under
   default-root resolution.
+* The migration guide now documents a compatibility break we shipped
+  inside the 2.x line. `ConfigError` gained `Platform` (2.1.0) and
+  `InvalidPathComponent` (2.2.0) without being `#[non_exhaustive]`, which
+  breaks any exhaustive `match` on it. `docs/src/migration-v2.md` now
+  discloses this at both steps and adds an "Upgrading from 2.0.x" section.
+* `README.md` lists the migration guide under "Using the crate" rather
+  than "Contributing and maintaining" — it is a user document.
+* `docs/src/maintainer-notes.md` carries an enum-stability check against
+  repeating the break.
 
 `new()`'s behavior is unchanged — this closes a documentation and API gap
 without touching what `new()` itself does. No new `ConfigError` variant:
 both of `try_new()`'s failure sources report through the existing
 `ConfigError::Platform`, since `ConfigError` is not `#[non_exhaustive]` and
-adding a variant would itself be a breaking change (see
-`docs/src/migration-v2.md` for the disclosure of that pre-existing issue).
+adding a variant would itself be a breaking change — see the disclosure
+above, which is the change most worth reading in this entry if you match
+exhaustively on `ConfigError` anywhere in your code.
 
 ### Compatibility
 

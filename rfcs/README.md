@@ -4,9 +4,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 ## Proposed
 
-| ID | Title | Priority |
-|---:|---|---|
-| 038 | [Fail-closed constructor for executable-derived identity](./proposed/038-fail-closed-constructor.md) | P1 |
+No proposed RFCs at this time.
 
 ## Implemented
 
@@ -28,6 +26,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 035 | [Documentation currency and recovery example](./done/035-documentation-currency-and-recovery-example.md) | 2.5.1 |
 | 036 | [Documentation example verification](./done/036-documentation-example-verification.md) | 2.5.1 |
 | 037 | [Migration guidance for 2.0.x upgraders](./done/037-migration-guidance-for-2-0-x-upgraders.md) | 2.6.0 |
+| 038 | [Fail-closed constructor for executable-derived identity](./done/038-fail-closed-constructor.md) | 2.6.0 |
 
 ## Archive
 

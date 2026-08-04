@@ -1,6 +1,6 @@
 # RFC 038 — Fail-closed constructor for executable-derived identity
 
-**Status.** Proposed
+**Status.** Implemented (2.6.0)
 **Tracks.** Data integrity of the default storage root.
 **Touches.** `src/core.rs`, `src/core/dir.rs`, `src/core/dir/tests.rs`, `src/core/tests.rs`, `docs/src/api-guide.md`, `docs/src/platform-behavior.md`, `CHANGELOG.md`.
 **Handoff.** [implementation handoff](../handoffs/038-fail-closed-constructor/implementation-handoff.md)

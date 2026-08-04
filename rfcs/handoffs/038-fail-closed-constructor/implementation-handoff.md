@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 038 Fail-closed constructor
 
-**Governing RFC.** [RFC 038](../../proposed/038-fail-closed-constructor.md)
-**Status.** Inherited from RFC 038 (Proposed).
+**Governing RFC.** [RFC 038](../../done/038-fail-closed-constructor.md)
+**Status.** Inherited from RFC 038 (Implemented, 2.6.0).
 **Milestone.** M3 — slice 6. Ships in 2.6.0.
 
 ## Purpose

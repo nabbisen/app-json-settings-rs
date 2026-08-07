@@ -1,5 +1,40 @@
 # Changelog
 
+## 2.7.0
+
+### Changed
+
+* `for_app()` and `try_with_filename()` now reject the 22 Windows reserved
+  device names (`CON`, `PRN`, `AUX`, `NUL`, `COM1`-`COM9`, `LPT1`-`LPT9`),
+  case-insensitively, including as the stem of a name with an extension
+  (`NUL.txt`) — on every platform, not only Windows. Previously
+  `try_with_filename("NUL")` succeeded, and a subsequent `save()` on
+  Windows would silently discard the written data to the null device
+  instead of creating a settings file. This is a correctness fix, not a
+  security fix: no privilege boundary is involved. Both report through the
+  existing `ConfigError::InvalidPathComponent`; no new `ConfigError`
+  variant.
+* `docs/src/api-guide.md` now documents `at_current_dir()`,
+  `disable_pretty_json()`, `with_direct_save()`, `save_mode()`, and
+  `path()`, and marks `at_custom_dir()` and `with_filename()` as
+  compatibility aliases for `with_root_dir()` and `try_with_filename()`
+  respectively.
+* `docs/src/platform-behavior.md` documents the reserved-name rejection.
+* Added `[package.metadata.docs.rs]` to `Cargo.toml` so the Windows-only
+  `uwp`-feature API (`at_uwp_local_folder()`) is visible on docs.rs, which
+  otherwise builds with default features on a non-Windows target and never
+  surfaces it.
+
+### Compatibility
+
+* **Behavior change**: `for_app()` and `try_with_filename()` now reject 22
+  additional names they previously accepted. An application legitimately
+  named one of those 22 strings (on any platform) can no longer construct
+  with it. Minor release, not a patch.
+* No API signature change, no new `ConfigError` variant, no new dependency.
+* Documentation and docs.rs metadata additions carry no behavior change of
+  their own.
+
 ## 2.6.0
 
 ### Added

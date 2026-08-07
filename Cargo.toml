@@ -25,3 +25,7 @@ serde_json          = "1"
 version             = "0.62"
 optional            = true
 features            = ["Storage", "Storage_Search"]
+
+[package.metadata.docs.rs]
+all-features        = true
+additional-targets  = ["x86_64-pc-windows-msvc"]

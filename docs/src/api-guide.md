@@ -69,6 +69,23 @@ let manager = ConfigManager::<Settings>::new().with_root_dir("./config");
 Use this for tests, portable mode, app-managed storage locations, and sandboxed
 hosts.
 
+Compatibility alias: `at_custom_dir(path)` is kept for v2.0.x compatibility
+and delegates to `with_root_dir(path)`; prefer `with_root_dir(path)` in new
+code.
+
+### `at_current_dir()`
+
+Stores the settings file in the current working directory.
+
+```rust
+let manager = ConfigManager::<Settings>::new().at_current_dir();
+```
+
+If the current working directory cannot be determined, this falls back to
+`"."`. Unlike `new()`'s and `for_app()`'s fallbacks, that is not a
+surprise here: the caller explicitly asked for working-directory storage,
+and `"."` already means "the working directory" to the filesystem.
+
 ### Choosing a constructor
 
 | Constructor | Identity | On failure |
@@ -101,6 +118,15 @@ assert_eq!(
 If the assertion fails, the executable-name fallback fired and produced
 something other than `"my-app"` — most likely the literal `"app"`.
 
+`file_name()` and `path()` return the other two pieces of the resolved
+location: the settings file's name, and the full path `save()` and
+`load()` actually use (`folder_path().join(file_name())`).
+
+```rust
+assert_eq!(manager.file_name(), "settings.json");
+assert_eq!(manager.path(), manager.folder_path().join(manager.file_name()));
+```
+
 ## File names
 
 ```rust
@@ -109,6 +135,10 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?
 ```
 
 `try_with_filename()` validates that the value is a plain file name.
+
+Compatibility alias: `with_filename(name)` sets the file name without
+validation; kept for v2.x compatibility, prefer `try_with_filename()` in
+new code.
 
 ## Loading and saving
 
@@ -137,6 +167,26 @@ let manager = ConfigManager::<Settings>::for_app("my-app")?
 
 `SaveMode::Atomic` is the default. `SaveMode::Direct` is available when an
 application intentionally wants direct overwrite behavior.
+`with_direct_save()` is a shorthand for `with_save_mode(SaveMode::Direct)`.
+
+```rust
+let manager = ConfigManager::<Settings>::for_app("my-app")?.with_direct_save();
+```
+
+`save_mode()` returns the manager's currently configured mode:
+
+```rust
+assert_eq!(manager.save_mode(), SaveMode::Direct);
+```
+
+## JSON format
+
+```rust
+let manager = ConfigManager::<Settings>::for_app("my-app")?.disable_pretty_json();
+```
+
+Settings are pretty-printed by default. `disable_pretty_json()` switches to
+compact JSON output.
 
 ## Updates
 

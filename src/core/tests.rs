@@ -150,6 +150,21 @@ fn safe_file_name_validation_rejects_paths() {
 }
 
 #[test]
+fn for_app_rejects_reserved_device_names() {
+    let error = ConfigManager::<TestSettings>::for_app("CON")
+        .expect_err("CON should be rejected as an app name");
+    assert!(matches!(error, crate::ConfigError::InvalidPathComponent(_)));
+}
+
+#[test]
+fn try_with_filename_rejects_reserved_device_names() {
+    let error = ConfigManager::<TestSettings>::new()
+        .try_with_filename("NUL")
+        .expect_err("NUL should be rejected as a file name");
+    assert!(matches!(error, crate::ConfigError::InvalidPathComponent(_)));
+}
+
+#[test]
 fn save_and_load_round_trip_pretty_json() {
     let dir = temp_dir("round-trip");
     let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);

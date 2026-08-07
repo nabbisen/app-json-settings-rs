@@ -39,6 +39,30 @@ Since 2.6.0, `ConfigManager::try_new()` reports this failure instead of
 falling back — see the [API guide](api-guide.md#choosing-a-constructor)
 for the full comparison across constructors.
 
+### Reserved device names are rejected everywhere
+
+`for_app()` and `try_with_filename()` reject the 22 Windows reserved device
+names (`CON`, `PRN`, `AUX`, `NUL`, `COM1`-`COM9`, `LPT1`-`LPT9`),
+case-insensitively, including as the stem of a name with an extension
+(`NUL.txt`) — on every platform, not only Windows. This is a correctness
+fix, not a security boundary: no privilege boundary is involved, and the
+failure it prevents is silent data loss, not an escape from any directory.
+
+On Windows, these names refer to devices rather than files in any
+directory. Without this check, `try_with_filename("NUL")` would succeed,
+and `save()` would then succeed too, but silently discard the written data
+to the null device instead of creating a settings file — the same
+false-coverage shape as the resolution-failure and executable-name-collision
+hazards documented above. *Reasoned from the documented Win32 device-name
+behavior; not verified empirically on Windows.*
+
+The check applies on every platform for consistency: the crate's path
+validation is deliberately OS-independent, so the same name is accepted or
+rejected the same way regardless of where the code runs. The cost is that
+an application cannot name itself, or a settings file, one of these 22
+strings on any platform — accepted as small next to the alternative of a
+Windows-only check that behaves differently depending on where it runs.
+
 ### Resolution failure
 
 Since 2.5.0, resolving the base directory can fail: on Unix (excluding

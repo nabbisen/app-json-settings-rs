@@ -30,7 +30,11 @@
 * **Behavior change**: `for_app()` and `try_with_filename()` now reject 22
   additional names they previously accepted. An application legitimately
   named one of those 22 strings (on any platform) can no longer construct
-  with it. Minor release, not a patch.
+  with it. The same check also reaches `new()` and `try_new()`: an
+  executable whose file stem is one of the 22 reserved names can no longer
+  have that name used as its derived application identity, so `new()`
+  falls back to `"app"` and `try_new()` returns `Err` for it, the same as
+  any other unsafe stem. Minor release, not a patch.
 * No API signature change, no new `ConfigError` variant, no new dependency.
 * Documentation and docs.rs metadata additions carry no behavior change of
   their own.

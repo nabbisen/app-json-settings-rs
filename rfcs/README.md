@@ -6,7 +6,6 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 
 | ID | Title | Priority |
 |---:|---|---|
-| 032 | [API surface completeness](./proposed/032-api-surface-completeness.md) | P2 |
 | 040 | [`uwp` feature disposition](./proposed/040-uwp-feature-disposition.md) | P2 |
 
 ## Implemented
@@ -31,6 +30,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 037 | [Migration guidance for 2.0.x upgraders](./done/037-migration-guidance-for-2-0-x-upgraders.md) | 2.6.0 |
 | 038 | [Fail-closed constructor for executable-derived identity](./done/038-fail-closed-constructor.md) | 2.6.0 |
 | 039 | [Homes for consumer-facing answers](./done/039-homes-for-consumer-answers.md) | main (provisional — update to the release version when it ships) |
+| 032 | [API surface completeness](./done/032-api-surface-completeness.md) | main (provisional — minor per the RFC's own decision, update to the release version when it ships) |
 
 ## Archive
 

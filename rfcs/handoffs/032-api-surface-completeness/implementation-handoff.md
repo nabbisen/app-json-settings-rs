@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 032 API surface completeness
 
-**Governing RFC.** [RFC 032](../../proposed/032-api-surface-completeness.md)
-**Status.** Inherited from RFC 032 (Proposed).
+**Governing RFC.** [RFC 032](../../done/032-api-surface-completeness.md)
+**Status.** Inherited from RFC 032 (Implemented).
 **Milestone.** M3 — slice 3.
 
 ## Purpose

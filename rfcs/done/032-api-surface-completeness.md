@@ -1,6 +1,6 @@
 # RFC 032 — API surface completeness
 
-**Status.** Proposed
+**Status.** Implemented
 **Tracks.** Public API that is documented, and validation that means what callers assume.
 **Touches.** `docs/src/api-guide.md`, `Cargo.toml` (docs.rs metadata), and — depending on one decision — `src/core/validation.rs`.
 **Handoff.** [implementation handoff](../handoffs/032-api-surface-completeness/implementation-handoff.md)

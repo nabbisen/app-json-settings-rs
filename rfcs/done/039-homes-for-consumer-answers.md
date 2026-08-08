@@ -1,6 +1,6 @@
 # RFC 039 — Homes for consumer-facing answers
 
-**Status.** Implemented
+**Status.** Implemented (2.7.0)
 **Tracks.** Where answers given to consumers live, so the next consumer finds them.
 **Touches.** `docs/src/api-guide.md`, `docs/src/introduction.md`, `docs/src/maintainer-notes.md`.
 **Handoff.** [implementation handoff](../handoffs/039-homes-for-consumer-answers/implementation-handoff.md)

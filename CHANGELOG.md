@@ -24,6 +24,20 @@
   `uwp`-feature API (`at_uwp_local_folder()`) is visible on docs.rs, which
   otherwise builds with default features on a non-Windows target and never
   surfaces it.
+* `docs/src/api-guide.md` documents `folder_path()` as the inspection seam
+  for the executable-name collision hazard: a caller who wants to keep
+  using `new()` can assert the resolved directory matches expectation
+  instead of switching constructor.
+* `docs/src/introduction.md`'s Non-goals states that the crate does not
+  take a logging or tracing dependency, and that failures are reported
+  through `Result` rather than logged.
+* `docs/src/maintainer-notes.md` records a rule: an answer given to one
+  consumer that is of general interest belongs in the relevant `docs/src/`
+  page, not only in the reply.
+* `docs/src/migration-v2.md` corrects an implication that staying on 2.0.x
+  avoids silent substitution. 2.0.x already substituted `.` for an
+  unresolvable configuration directory silently; only the executable-name
+  lookup panicked. This argues for upgrading sooner, not later.
 
 ### Compatibility
 

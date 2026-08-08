@@ -1,7 +1,7 @@
 # Implementation handoff — RFC 039 Homes for consumer-facing answers
 
 **Governing RFC.** [RFC 039](../../done/039-homes-for-consumer-answers.md)
-**Status.** Inherited from RFC 039 (Implemented).
+**Status.** Inherited from RFC 039 (Implemented, 2.7.0).
 **Milestone.** M3 — slice 7.
 
 ## Purpose

@@ -14,6 +14,22 @@ red. If the gate cannot be made green, the RFC stays in `proposed/` and the
 blocking failure is recorded in it. A checklist item is marked complete only
 against a run that was actually observed, not against an expected result.
 
+## RFC close-out sequencing
+
+Move the RFC file, update its Status field, update the index row in
+`rfcs/README.md`, and update the handoff's inherited Status — **all in one
+commit**, per RFC 000. Splitting them leaves the repository in the
+"Status field that lies" state RFC 000 names as an anti-pattern.
+
+**Run `scripts/check-rfcs.sh` before committing the close-out, not after
+pushing.** This rule exists because the sequencing was breached twice, both times
+by a `git add` that silently dropped paths after a `git mv`, and both times the
+gate caught it only once CI had already gone red.
+
+Unlike the completion rule above, this one is mechanically checkable — the gate
+already detects the broken state, it was simply running too late. So the rule is
+to run the check, not to remember the rule.
+
 ## Enum stability check
 
 Adding a variant to a public enum is a breaking change unless the enum is

@@ -53,6 +53,20 @@ change:
   fallback to silently take, and since 2.5.0 it reports storage-root
   resolution failure rather than substituting a relative path.
 
+**Staying on 2.0.x does not avoid silent substitution.** It is easy to read
+the previous point as meaning 2.0.x fails loudly and later versions do not.
+That is true only of the executable name. 2.0.x resolved the *configuration
+directory* with `HOME`, `XDG_CONFIG_HOME`, and `%APPDATA%` each falling back
+silently to `.`, so an unresolvable environment already produced a settings
+file relative to the process's working directory — with no error and no
+panic. Only the executable-name lookup panicked.
+
+That is the more damaging of the two: it misplaces the file entirely rather
+than misnaming its directory. If your environment can lack those variables —
+services, containers, kiosk sessions — 2.0.x already exposes you to it, and
+`for_app()` on 2.5.0 or later is the first version that reports the failure
+instead of substituting. This argues for upgrading sooner, not later.
+
 **MSRV moved from `1.90.0` (2.0.3) to `1.85.0` (2.0.4 onward)** — a
 loosening, not a tightening. Worth stating plainly because the opposite is
 the natural assumption for a version bump. The corollary matters too: the

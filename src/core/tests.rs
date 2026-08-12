@@ -252,6 +252,54 @@ fn load_or_default_does_not_reset_an_existing_invalid_file() {
     );
 }
 
+#[cfg(unix)]
+#[test]
+fn load_or_default_does_not_overwrite_an_unreadable_existing_file() {
+    // load_or_default() creates defaults only on Err(NotFound). If that
+    // guard were removed, inverted, or the arms reordered, an existing but
+    // unreadable file would take the NotFound branch and get silently
+    // overwritten with defaults -- the file on disk surviving unchanged is
+    // what actually proves that didn't happen, the same reasoning as the
+    // invalid-file test above.
+    //
+    // Assumes non-root: under root, mode 0o000 does not block reads, so
+    // this test would not exercise the guard it's meant to protect.
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("unreadable-existing-file");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    let original = TestSettings {
+        volume: 77,
+        enabled: true,
+    };
+    manager
+        .save(&original)
+        .expect("initial save should succeed");
+    let original_content =
+        fs::read_to_string(manager.path()).expect("saved file should be readable");
+
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o000))
+        .expect("mode should be settable");
+
+    let result = manager.load_or_default();
+
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o600))
+        .expect("mode should be restorable so the temp file can be cleaned up");
+
+    assert!(
+        matches!(result, Err(crate::ConfigError::Io(_))),
+        "unreadable file should return Io, got {result:?}"
+    );
+
+    let content_after =
+        fs::read_to_string(manager.path()).expect("settings file should be readable again");
+    assert_eq!(
+        content_after, original_content,
+        "an unreadable file must not be overwritten with defaults"
+    );
+}
+
 #[test]
 fn update_modifies_and_persists_configuration() {
     let dir = temp_dir("update");

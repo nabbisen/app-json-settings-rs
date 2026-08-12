@@ -28,12 +28,23 @@ Rename this heading to the version number when a release is cut.
   replacement's `rename` is gated by write permission on the *directory*, not
   on the file being replaced: a settings file at mode `000` cannot be read and
   is replaced anyway, while a read-only directory is what actually makes the
-  save fail, reporting `ConfigError::Io`. Permission preservation still
-  applies across the replacement, so the restrictive mode is carried onto the
-  new file — the mode survives, the contents do not. This documents what
-  atomic replacement has always done; it is not a behavior change, and it
-  matters because `chmod` on a settings file can be mistaken for a lock
-  against modification.
+  save fail, reporting `ConfigError::Io`. The mode does survive the
+  replacement, but by way of `apply_target_mode()` in this crate rather than
+  anything `rename` does — `rename` repoints the directory entry at the
+  temporary file's inode, so without that call the result would carry the
+  temporary file's `0600`. This documents what atomic replacement has always
+  done; it is not a behavior change, and it matters because `chmod` on a
+  settings file can be mistaken for a lock against modification.
+* `docs/src/operational-contract.md` documents that mode preservation copies
+  the target's mode in **both** directions, so it can leave the file looser
+  than the crate would create it: new files are created at `0600`, but an
+  existing file at `0644` or `0666` — set by a user, or created by a version
+  predating owner-only creation — keeps that mode through every subsequent
+  save. The crate never tightens a mode it did not create. Callers whose
+  settings are sensitive should not infer `0600` from the creation default.
+  The rustdoc on `apply_target_mode()` now records that its "never less
+  restrictive" note describes the failure path only, and that the success
+  path is where loosening occurs.
 * `docs/src/api-guide.md` documents `folder_path()` as how to **obtain** the
   settings directory, with the one-line `folder_path().to_path_buf()` form,
   and states explicitly not to derive the directory as `path().parent()` —

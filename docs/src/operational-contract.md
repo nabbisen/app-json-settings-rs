@@ -108,16 +108,56 @@ save with the DIRECTORY read-only -> false
 content after that attempt: {   "v": 42 }
 ```
 
-Permission preservation still applies across the replacement, so the
-restrictive mode itself survives — in the run above, the replacement file
-carried mode `000` forward. What does not survive is the contents. A mode
-that blocks reading is not a lock against overwriting.
+The mode *does* survive that replacement — but that is this crate's doing,
+not `rename`'s. `rename` repoints the directory entry at the temporary
+file's inode, so the replaced file's mode departs with the replaced inode and
+the result would otherwise carry the temporary file's `0600`. `save_atomic()`
+calls `apply_target_mode()` to copy the target's mode onto the temporary file
+first, which is the only reason the mode is preserved. Measured with that
+call disabled:
+
+```
+restrictive target (0400): target before = 400 -> after replacement = 600
+loose target      (0644): target before = 644 -> after replacement = 600
+```
+
+So the contents do not survive, and the mode survives only because
+preservation is implemented. A mode that blocks reading is not a lock against
+overwriting.
+
+Anyone reimplementing atomic replacement gets facts 1 and 2 from `rename`
+whether or not they intend them; they get mode preservation only by writing
+it.
 
 This matters mainly for the assumption behind it: `chmod` on the settings
 file is not a way to pin settings against modification by an application
 using this crate. If a settings file must not be replaced, the directory is
 the level to control, and the resulting `save()` failure surfaces as
 `ConfigError::Io`.
+
+## Preservation can leave the file looser than the crate would create it
+
+Mode preservation copies whatever is on the target, in both directions. New
+files are created owner-only at `0600`, but an existing file at `0644` — set
+by a user, or created by a version of this crate predating owner-only
+creation — keeps that mode through every subsequent save:
+
+```
+loose target   (0644): target before = 644 -> after replacement = 644
+world-writable (0666): target before = 666 -> after replacement = 666
+```
+
+The crate never tightens a mode it did not create. That is deliberate:
+preserving a mode respects a user who set one on purpose, and silently
+overriding it would be its own surprise. The tradeoff is the axis worth
+knowing about — *preserve* respects intent, *enforce* guarantees a floor, and
+this crate preserves.
+
+The practical consequence: **do not infer `0600` from the creation default.**
+If the settings file predates owner-only creation, or was loosened at any
+point, it stays loose for the life of the file. An application whose settings
+hold anything sensitive and that needs owner-only guaranteed should assert or
+set the mode itself rather than relying on the default it was created with.
 
 ## Recovery pattern
 

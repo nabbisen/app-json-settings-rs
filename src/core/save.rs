@@ -85,6 +85,15 @@ fn save_atomic(path: &Path, content: &str) -> Result<()> {
 /// leaves the result more restrictive than intended, never less. Filesystems
 /// that do not model permission bits (FAT, some network mounts) are expected
 /// to fail here; that is not a save failure.
+///
+/// That "never less restrictive" guarantee is about the *failure* path only.
+/// The success path is where loosening happens: a target at `0644` or `0666`
+/// has that mode copied onto the `0600` temporary file, so the saved result is
+/// looser than the crate would have created it, silently. This is intended —
+/// preserving a mode respects a user who set one deliberately, and the crate
+/// never tightens a mode it did not create — but it means owner-only cannot be
+/// inferred from the creation default for any file the crate did not create
+/// fresh. Documented for callers in `docs/src/operational-contract.md`.
 #[cfg(unix)]
 fn apply_target_mode(temp_path: &Path, target_path: &Path) {
     if let Ok(metadata) = fs::metadata(target_path) {

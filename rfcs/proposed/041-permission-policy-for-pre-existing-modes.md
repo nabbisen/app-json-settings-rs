@@ -5,6 +5,7 @@
 **Touches.** `src/core/save.rs`, `src/core/tests.rs`, `docs/src/save-behavior.md`, `docs/src/operational-contract.md`, `CHANGELOG.md`.
 **Amends.** [RFC 029](../done/029-permission-preservation-on-atomic-save.md)
 **Relates to.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md), which made atomic save the default; [RFC 042](./042-config-error-variant-stability.md), which carries this RFC's deferred reporting work.
+**Handoff.** [implementation handoff](../handoffs/041-permission-policy-for-pre-existing-modes/implementation-handoff.md) — slice 1 only.
 
 ## Summary
 

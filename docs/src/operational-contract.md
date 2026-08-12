@@ -86,6 +86,39 @@ something this crate adds or could reasonably opt out of without abandoning
 atomicity — but it is easy to miss if the settings path was expected to stay
 a symlink across saves.
 
+## A restrictive mode does not protect the file from replacement
+
+The same `rename` has a second consequence, and this one can be mistaken for
+a safety mechanism. Restricting the settings file's own permissions does
+**not** stop `save()` from replacing it. `rename` is gated by write
+permission on the *directory*, not on the file being replaced. Measured on
+Unix against a settings file at mode `000`:
+
+```
+target set to 000 -> readable? false
+save over the 000 target -> true
+content now: {   "v": 1 }
+```
+
+The file could not be read, and was replaced anyway. Making the *directory*
+read-only is what actually prevents the save:
+
+```
+save with the DIRECTORY read-only -> false
+content after that attempt: {   "v": 42 }
+```
+
+Permission preservation still applies across the replacement, so the
+restrictive mode itself survives — in the run above, the replacement file
+carried mode `000` forward. What does not survive is the contents. A mode
+that blocks reading is not a lock against overwriting.
+
+This matters mainly for the assumption behind it: `chmod` on the settings
+file is not a way to pin settings against modification by an application
+using this crate. If a settings file must not be replaced, the directory is
+the level to control, and the resulting `save()` failure surfaces as
+`ConfigError::Io`.
+
 ## Recovery pattern
 
 The shape of handling a settings file that fails to deserialize: move it

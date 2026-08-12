@@ -1,5 +1,58 @@
 # Changelog
 
+## Unreleased
+
+Rename this heading to the version number when a release is cut.
+
+### Added
+
+* Added a test covering `load_or_default()`'s unreadable-existing-file arm.
+  Of that method's three arms — parse failure, absent file, and unreadable
+  file — the middle one is the only one that writes, and the unreadable case
+  was the only one with no test. Had the `NotFound` guard been removed,
+  inverted, or the arms reordered, an existing but unreadable settings file
+  would have taken the writing arm and been overwritten with defaults,
+  silently, with the suite green throughout. The test asserts both that the
+  call returns `ConfigError::Io` **and** that the file's contents survive
+  byte-identical; asserting the error alone would still pass if defaults were
+  written and the call then failed for an unrelated reason. `#[cfg(unix)]`:
+  the mechanism for making a file unreadable is Unix-specific, while the arm
+  it guards is platform-independent, so the Unix test protects it everywhere.
+  No behavior change — this closes coverage on behavior that already ships,
+  and which `docs/src/operational-contract.md` already promised.
+
+### Changed
+
+* `docs/src/operational-contract.md` documents that a restrictive mode on the
+  settings file does **not** prevent `save()` from replacing it. Atomic
+  replacement's `rename` is gated by write permission on the *directory*, not
+  on the file being replaced: a settings file at mode `000` cannot be read and
+  is replaced anyway, while a read-only directory is what actually makes the
+  save fail, reporting `ConfigError::Io`. Permission preservation still
+  applies across the replacement, so the restrictive mode is carried onto the
+  new file — the mode survives, the contents do not. This documents what
+  atomic replacement has always done; it is not a behavior change, and it
+  matters because `chmod` on a settings file can be mistaken for a lock
+  against modification.
+* `docs/src/api-guide.md` documents `folder_path()` as how to **obtain** the
+  settings directory, with the one-line `folder_path().to_path_buf()` form,
+  and states explicitly not to derive the directory as `path().parent()` —
+  which introduces an `Option` for a case that cannot occur. 2.7.0 documented
+  `folder_path()` only as the inspection seam for the executable-name
+  collision hazard, which did not describe it to a reader who simply wanted
+  the directory.
+* `docs/src/maintainer-notes.md` records the RFC close-out sequencing rule:
+  the file move, its `Status` field, the index row in `rfcs/README.md`, and
+  the handoff's inherited Status all belong in one commit per RFC 000, and
+  `scripts/check-rfcs.sh` is to be run before committing the close-out rather
+  than after pushing.
+
+### Compatibility
+
+* No API change, no signature change, no new `ConfigError` variant, no new
+  dependency, and no behavior change. Documentation and test additions only.
+* Patch release, not minor: nothing was added to the public API.
+
 ## 2.7.0
 
 ### Changed

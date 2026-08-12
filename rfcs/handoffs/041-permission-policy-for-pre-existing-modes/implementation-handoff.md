@@ -128,9 +128,21 @@ Test count goes 39 → 44 unit.
 * **Each new test demonstrated to fail with the mask removed.** Set
   `NON_PROPAGATED_MODE_BITS` to `0o000`, show the failures, revert. A test that
   cannot fail is not evidence — the standard from RFC 033 and task 008.
-* The `0640` test's failure output specifically, since a mask of `0o077` or
-  `0o066` would pass every other test and silently break RFC 029's deliberate
-  case.
+* The `0640` test's failure output specifically.
+
+  **Corrected after implementation (2026-08-12).** This bullet originally
+  claimed a mask of `0o077` or `0o066` "would pass every other test and
+  silently break RFC 029's deliberate case." That is false, and was caught by
+  the implementer. Both masks also break `mode-preserve-0644`, because `0640`
+  and `0644` share their group digit and a mask stripping group-read fails both
+  at once.
+
+  Stronger still, established during review 018: `0640`'s set bits are a strict
+  subset of `0644`'s, so **`0640` can never fail unless `0644` fails too**,
+  while a mask touching only other-read (`0o004`) fails `0644` alone. The
+  pre-existing `0644` test strictly dominates the `0640` one. Keep both — the
+  `0640` test documents that group *read* survives, where a reader will look
+  for it — but the decisive evidence is `0644`, not `0640`.
 * `git diff --stat` limited to the five files above.
 * `git status` clean after reverting the mask experiment.
 * CI green on all three platforms.

@@ -127,6 +127,25 @@ assert_eq!(manager.file_name(), "settings.json");
 assert_eq!(manager.path(), manager.folder_path().join(manager.file_name()));
 ```
 
+### Getting the settings directory
+
+`folder_path()` is also simply how you obtain the directory, not only how you
+check it. It borrows from the manager, so a caller that does not keep the
+manager around copies the value out in the same expression:
+
+```rust
+let dir: PathBuf = ConfigManager::<Settings>::for_app("my-app")?
+    .folder_path()
+    .to_path_buf();
+```
+
+The manager is dropped at the end of that statement and the `PathBuf` is
+owned — the same shape as `path()`, which already returns an owned value.
+
+Do not derive the directory by taking `path().parent()`. It gives the same
+answer, but it returns `Option` for a case that cannot occur, which pushes an
+impossible branch into the caller.
+
 ## File names
 
 ```rust

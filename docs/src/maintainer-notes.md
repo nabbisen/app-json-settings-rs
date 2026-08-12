@@ -37,6 +37,13 @@ Adding a variant to a public enum is a breaking change unless the enum is
 a variant is genuinely needed, that is a major-version conversation, not a
 minor release.
 
+**Record the blocked variant in RFC 042's ledger**, in
+`rfcs/proposed/042-config-error-variant-stability.md`. A deferral written
+into the RFC that wanted the variant prevents that RFC from ever closing
+honestly — it can be filed neither as Implemented nor as Proposed — so the
+deferred item moves to the ledger and the originating RFC closes on what it
+actually delivered.
+
 This rule exists because `ConfigError` already broke it once:
 `ConfigError::Platform` (2.1.0) and `ConfigError::InvalidPathComponent`
 (2.2.0) both shipped as minor releases and both break an exhaustive

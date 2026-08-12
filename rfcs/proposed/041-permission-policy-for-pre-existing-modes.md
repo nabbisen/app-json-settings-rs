@@ -4,7 +4,7 @@
 **Tracks.** Durability and safety of the default save path.
 **Touches.** `src/core/save.rs`, `src/core/tests.rs`, `docs/src/save-behavior.md`, `docs/src/operational-contract.md`, `CHANGELOG.md`.
 **Amends.** [RFC 029](../done/029-permission-preservation-on-atomic-save.md)
-**Relates to.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md), which made atomic save the default.
+**Relates to.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md), which made atomic save the default; [RFC 042](./042-config-error-variant-stability.md), which carries this RFC's deferred reporting work.
 
 ## Summary
 
@@ -15,9 +15,14 @@ keeps `0666` through every subsequent save, where without preservation a single
 save would have returned it to `0600`.
 
 This RFC does not propose reversing RFC 029. It proposes stopping the
-propagation of the bits that are never deliberate, deciding how — or whether —
-to report a loose mode, and separately considering an opt-in owner-only
-guarantee for applications that want one.
+propagation of the bits that are never deliberate, and separately considering an
+opt-in owner-only guarantee for applications that want one.
+
+Reporting such a condition to the caller — rather than repairing it silently —
+was considered here and **moved to [RFC 042](./042-config-error-variant-stability.md)**,
+because it requires a new `ConfigError` variant and cannot ship before a major
+version. Keeping it here would have prevented this RFC from ever closing
+honestly.
 
 ## Motivation
 
@@ -75,7 +80,6 @@ impose a mode.
 
 * Stop propagating permission bits that are never deliberate for a settings file.
 * Preserve the deliberate cases RFC 029 protects, including `0644`, unchanged.
-* Decide how a dangerous pre-existing mode is reported, if at all.
 * Give applications that need a hard owner-only floor a way to ask for one,
   without imposing it on applications that do not.
 * Change nothing on Windows.
@@ -89,13 +93,14 @@ impose a mode.
 * No Windows ACL work. RFC 029's reasoning stands unchanged.
 * No ownership (uid/gid) handling.
 * No claim that this crate is a secret store.
-* No new dependency, and no logging or tracing dependency — reporting must go
-  through `Result` or an inspection API, per `docs/src/introduction.md`'s
-  non-goals.
+* **No reporting of the condition to the caller.** Moved to
+  [RFC 042](./042-config-error-variant-stability.md); see
+  [Alternatives](#alternatives-considered).
+* No new dependency, and no logging or tracing dependency.
 
 ## Design
 
-Three slices, independently shippable, in the order they should be considered.
+Two slices, independently shippable, in the order they should be considered.
 
 ### Slice 1 — Stop propagating group and other **write** bits
 
@@ -124,40 +129,10 @@ or an attack artifact.
 The existing `mode-preserve-0644` test is unaffected — `0644` contains no
 group- or other-write bits.
 
-### Slice 2 — Reporting a dangerous pre-existing mode
+Slice 1 repairs the condition. It does not *report* it — see
+[Alternatives](#alternatives-considered) for why that work now lives in RFC 042.
 
-Silently repairing is better than silently perpetuating, but it still hides that
-something put the file in that state. The established pattern in
-security-sensitive tooling is to refuse and tell the user: `ssh` will not use a
-private key whose permissions are too open, and does not `chmod` it on the
-user's behalf.
-
-**This slice is blocked on a constraint worth stating plainly.** `ConfigError`
-is not `#[non_exhaustive]` (`src/core/error.rs`), and `src/core.rs:94` already
-records that adding a variant breaks any exhaustive match. So a dedicated
-`ConfigError::InsecurePermissions` cannot ship before a major version. The
-options that remain:
-
-| Option | Result | Trade-off |
-|---|---|---|
-| **A — defer to the major** | Clean variant when the major happens | The condition goes unreported until then; slice 1 still repairs it silently |
-| B — report through `ConfigError::Platform` with a message | Shippable now | Second use of a general variant as a stand-in; string-matching is the only way a caller can distinguish it |
-| C — fail `load` on an other-writable file | Strongest signal, `ssh`-like | Can strand an application that has no way to repair the file; harsh for a condition the app did not cause |
-| D — documentation only | No code, no risk | The condition stays invisible |
-
-**Recommendation: A**, with slice 1 doing the repair in the meantime. B repeats
-the `try_new()` workaround this project already told orbok it was unhappy with,
-and doing it a second time would entrench a pattern rather than record a cost.
-C's failure mode is worse than the condition it reports.
-
-**Decision required from the project owner.**
-
-This is the second live design decision constrained by the missing
-`#[non_exhaustive]`, after `try_new()` in 2.6.0. That is now a pattern, and it
-strengthens the case for the major-version change orbok has raised twice. It
-remains the owner's call and is not proposed here.
-
-### Slice 3 — Opt-in owner-only enforcement
+### Slice 2 — Opt-in owner-only enforcement
 
 A builder method by which an application that knows its settings are sensitive
 can ask for a `0600` floor regardless of what mode it finds:
@@ -191,8 +166,7 @@ absolute and the documentation must say so rather than imply a guarantee.
 * **Slice 1** is a behavior change on Unix: files at `0664`/`0666`/`0620` and
   similar are narrowed on the next save. Minor release, not a patch. No API
   change.
-* **Slice 2** depends on the option chosen; A and D carry no compatibility cost.
-* **Slice 3** is purely additive. Minor release.
+* **Slice 2** is purely additive. Minor release.
 * Windows, other targets, and `SaveMode::Direct` unaffected throughout.
 * No `ConfigError` variant is added by any slice as proposed.
 
@@ -220,7 +194,7 @@ Unix-only, `#[cfg(unix)]`:
   which must stay green and must not be modified.
 * `0640` target is preserved unchanged: group *read* is not touched.
 * `0400` and `0600` targets are preserved unchanged.
-* Slice 3, if taken: an enforced manager lands at `0600` from a `0644` target,
+* Slice 2, if taken: an enforced manager lands at `0600` from a `0644` target,
   and a non-enforcing manager on the same file does not.
 
 Each test must be shown to fail with the mask removed, per the standard set by
@@ -232,17 +206,20 @@ Windows and macOS stay green on the existing matrix; no Windows behavior changes
 
 * **Slice 1 is silent.** It repairs without telling anyone, which is the same
   class of behavior this project has been reducing elsewhere. Accepted only
-  because the bits involved cannot represent a real decision — and slice 2 exists
-  to address the silence properly when it can be done cleanly.
+  because the bits involved cannot represent a real decision — and because
+  [RFC 042](./042-config-error-variant-stability.md) carries the work to address
+  the silence properly once it can be done cleanly.
 * **A legitimate group-writable deployment would be narrowed.** A shared
   service directory where a group is genuinely expected to write the settings
-  file would break. Judged unlikely enough to accept, and slice 3 does not help
-  such a deployment — it would need `SaveMode::Direct` or its own path. This is
-  the strongest argument against slice 1 and should be weighed before it ships.
+  file would break. **The owner accepted this risk on 2026-08-12 and approved
+  slice 1 to ship.** Slice 2 does not help such a deployment — it would need
+  `SaveMode::Direct` or its own path. Release notes must state the narrowing
+  plainly so an affected deployment can recognise itself.
 * **The mask is a policy encoded in a constant.** `0o022` is a judgement about
   which bits are never deliberate. It should be a named constant with the
   reasoning attached, not an inline literal.
-* **Slice 2's real fix is gated on a major version** that is not scheduled.
+* **The condition remains unreported** until RFC 042's major lands. Repaired,
+  but never surfaced — a real if minor cost of the deferral, recorded there.
 
 ## Alternatives considered
 
@@ -253,7 +230,20 @@ Windows and macOS stay green on the existing matrix; no Windows behavior changes
   — so it would advertise a floor it silently fails to deliver on exactly the
   filesystems where that matters. It would require modifying RFC 029's
   `mode-preserve-0644` test, which is the clearest signal that it reverses a
-  specified decision rather than refining one. Offered instead as opt-in, slice 3.
+  specified decision rather than refining one. Offered instead as opt-in, slice 2.
+* **Report the condition rather than repair it silently** — the `ssh` posture,
+  which refuses a too-open private key and does not `chmod` it for you. Not
+  rejected on the merits; it is the better answer. It requires a dedicated
+  `ConfigError` variant, and `ConfigError` is not `#[non_exhaustive]`
+  (`src/core/error.rs`; `src/core.rs:94` records the consequence), so it cannot
+  ship before a major version. Reporting through `ConfigError::Platform` with a
+  message was considered and rejected: it repeats the `try_new()` workaround and
+  makes string-matching the only way a caller can discriminate. Failing `load`
+  outright was rejected as worse than the condition — it strands an application
+  over a state it did not cause. **Moved to
+  [RFC 042](./042-config-error-variant-stability.md)** rather than retained here,
+  so this RFC can close on the work it delivers instead of waiting on an
+  unscheduled major. Owner decision, 2026-08-12.
 * **Do nothing, document only.** Already partly done — the behavior is now
   documented in `docs/src/operational-contract.md`. Rejected as the whole answer:
   documentation does not stop the crate from perpetuating the state, and the
@@ -281,11 +271,12 @@ Slice 1:
 * `CHANGELOG.md` records the behavior change under a minor version.
 * No public API change, no new `ConfigError` variant.
 
-Slice 2: owner decision recorded in this RFC before any implementation.
-
-Slice 3, if taken:
+Slice 2, if taken:
 
 * Additive builder method, documented as best-effort with the
   non-POSIX-filesystem caveat stated.
 * Tests covering enforced and non-enforced behavior on the same target mode.
 * No change to the default path.
+
+This RFC is complete when slice 1 has shipped and slice 2 has been either
+shipped or declined. It does **not** wait on RFC 042.

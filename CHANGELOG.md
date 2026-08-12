@@ -1,8 +1,6 @@
 # Changelog
 
-## Unreleased
-
-Rename this heading to the version number when a release is cut.
+## 2.8.0
 
 ### Added
 

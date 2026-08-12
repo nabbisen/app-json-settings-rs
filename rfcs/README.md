@@ -7,7 +7,6 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | ID | Title | Priority |
 |---:|---|---|
 | 040 | [`uwp` feature disposition](./proposed/040-uwp-feature-disposition.md) | P2 |
-| 041 | [Permission policy for pre-existing loose modes](./proposed/041-permission-policy-for-pre-existing-modes.md) | P2 |
 | 042 | [`ConfigError` variant stability](./proposed/042-config-error-variant-stability.md) | P3 — blocked on a major version |
 
 ## Implemented
@@ -33,6 +32,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | 038 | [Fail-closed constructor for executable-derived identity](./done/038-fail-closed-constructor.md) | 2.6.0 |
 | 039 | [Homes for consumer-facing answers](./done/039-homes-for-consumer-answers.md) | 2.7.0 |
 | 032 | [API surface completeness](./done/032-api-surface-completeness.md) | 2.7.0 |
+| 041 | [Permission policy for pre-existing loose modes](./done/041-permission-policy-for-pre-existing-modes.md) | 2.8.0 |
 
 ## Archive
 

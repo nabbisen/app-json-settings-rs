@@ -1,8 +1,8 @@
 # Implementation handoff — RFC 041 slice 1, refuse to propagate write bits
 
-**Governing RFC.** [RFC 041](../../proposed/041-permission-policy-for-pre-existing-modes.md)
-**Status.** Inherited from RFC 041 (Proposed; slice 1 approved by the owner 2026-08-12).
-**Scope.** Slice 1 only. Slice 2 (`enforce_owner_only()`) is undecided and **not** in scope.
+**Governing RFC.** [RFC 041](../../done/041-permission-policy-for-pre-existing-modes.md)
+**Status.** Inherited from RFC 041 (Implemented, 2.8.0).
+**Scope.** Slice 1 only. Slice 2 (`enforce_owner_only()`) was declined by the owner and never implemented.
 
 ## Purpose
 

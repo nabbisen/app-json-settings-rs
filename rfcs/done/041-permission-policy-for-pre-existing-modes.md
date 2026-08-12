@@ -1,10 +1,10 @@
 # RFC 041 — Permission policy for pre-existing loose modes
 
-**Status.** Proposed
+**Status.** Implemented (2.8.0) — slice 1 shipped; slice 2 declined by the owner, 2026-08-12.
 **Tracks.** Durability and safety of the default save path.
 **Touches.** `src/core/save.rs`, `src/core/tests.rs`, `docs/src/save-behavior.md`, `docs/src/operational-contract.md`, `CHANGELOG.md`.
-**Amends.** [RFC 029](../done/029-permission-preservation-on-atomic-save.md)
-**Relates to.** [RFC 024](../done/024-save-reliability-and-atomic-write-policy.md), which made atomic save the default; [RFC 042](./042-config-error-variant-stability.md), which carries this RFC's deferred reporting work.
+**Amends.** [RFC 029](./029-permission-preservation-on-atomic-save.md)
+**Relates to.** [RFC 024](./024-save-reliability-and-atomic-write-policy.md), which made atomic save the default; [RFC 042](../proposed/042-config-error-variant-stability.md), which carries this RFC's deferred reporting work.
 **Handoff.** [implementation handoff](../handoffs/041-permission-policy-for-pre-existing-modes/implementation-handoff.md) — slice 1 only.
 
 ## Summary
@@ -20,7 +20,7 @@ propagation of the bits that are never deliberate, and separately considering an
 opt-in owner-only guarantee for applications that want one.
 
 Reporting such a condition to the caller — rather than repairing it silently —
-was considered here and **moved to [RFC 042](./042-config-error-variant-stability.md)**,
+was considered here and **moved to [RFC 042](../proposed/042-config-error-variant-stability.md)**,
 because it requires a new `ConfigError` variant and cannot ship before a major
 version. Keeping it here would have prevented this RFC from ever closing
 honestly.
@@ -95,7 +95,7 @@ impose a mode.
 * No ownership (uid/gid) handling.
 * No claim that this crate is a secret store.
 * **No reporting of the condition to the caller.** Moved to
-  [RFC 042](./042-config-error-variant-stability.md); see
+  [RFC 042](../proposed/042-config-error-variant-stability.md); see
   [Alternatives](#alternatives-considered).
 * No new dependency, and no logging or tracing dependency.
 
@@ -133,7 +133,24 @@ group- or other-write bits.
 Slice 1 repairs the condition. It does not *report* it — see
 [Alternatives](#alternatives-considered) for why that work now lives in RFC 042.
 
-### Slice 2 — Opt-in owner-only enforcement
+### Slice 2 — Opt-in owner-only enforcement — **declined**
+
+**Declined by the owner, 2026-08-12.** Not implemented, and not carried forward
+to another RFC.
+
+The reasoning: after slice 1 the case that actually bites — a settings file left
+writable by another local account — is repaired on the next save. What slice 2
+would add is a hard `0600` floor for applications that consider their settings
+sensitive, and **no consumer has asked for it.** The one consumer with that
+requirement, orbok, enforces `0600` in its own write path and raised the
+preserve-versus-enforce axis as a design observation rather than a request.
+
+Adding public API on the strength of a hypothesis about demand is how a small
+API stops being small. If a consumer does ask, this section is the design, and
+the argument below for why it cannot be done correctly from outside the crate
+still holds.
+
+The design as it stood:
 
 A builder method by which an application that knows its settings are sensitive
 can ask for a `0600` floor regardless of what mode it finds:
@@ -208,7 +225,7 @@ Windows and macOS stay green on the existing matrix; no Windows behavior changes
 * **Slice 1 is silent.** It repairs without telling anyone, which is the same
   class of behavior this project has been reducing elsewhere. Accepted only
   because the bits involved cannot represent a real decision — and because
-  [RFC 042](./042-config-error-variant-stability.md) carries the work to address
+  [RFC 042](../proposed/042-config-error-variant-stability.md) carries the work to address
   the silence properly once it can be done cleanly.
 * **A legitimate group-writable deployment would be narrowed.** A shared
   service directory where a group is genuinely expected to write the settings
@@ -242,7 +259,7 @@ Windows and macOS stay green on the existing matrix; no Windows behavior changes
   makes string-matching the only way a caller can discriminate. Failing `load`
   outright was rejected as worse than the condition — it strands an application
   over a state it did not cause. **Moved to
-  [RFC 042](./042-config-error-variant-stability.md)** rather than retained here,
+  [RFC 042](../proposed/042-config-error-variant-stability.md)** rather than retained here,
   so this RFC can close on the work it delivers instead of waiting on an
   unscheduled major. Owner decision, 2026-08-12.
 * **Do nothing, document only.** Already partly done — the behavior is now
@@ -272,12 +289,12 @@ Slice 1:
 * `CHANGELOG.md` records the behavior change under a minor version.
 * No public API change, no new `ConfigError` variant.
 
-Slice 2, if taken:
+Slice 2: **declined**, so its criteria do not apply. Had it been taken:
 
 * Additive builder method, documented as best-effort with the
   non-POSIX-filesystem caveat stated.
 * Tests covering enforced and non-enforced behavior on the same target mode.
 * No change to the default path.
 
-This RFC is complete when slice 1 has shipped and slice 2 has been either
-shipped or declined. It does **not** wait on RFC 042.
+This RFC is complete: slice 1 shipped in 2.8.0 and slice 2 was declined. It does
+**not** wait on RFC 042, which carries the reporting work independently.

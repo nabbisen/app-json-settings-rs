@@ -3,7 +3,7 @@
 **Status.** Proposed
 **Tracks.** Public API stability, and the ledger of work blocked on it.
 **Touches.** `src/core/error.rs`, `docs/src/error-handling.md`, `docs/src/migration-v2.md`, `docs/src/maintainer-notes.md`, `CHANGELOG.md` — at a major version only.
-**Relates to.** [RFC 038](../done/038-fail-closed-constructor.md), whose design was constrained by this; [RFC 041](./041-permission-policy-for-pre-existing-modes.md), which deferred a slice here.
+**Relates to.** [RFC 038](../done/038-fail-closed-constructor.md), whose design was constrained by this; [RFC 041](../done/041-permission-policy-for-pre-existing-modes.md), which deferred a slice here.
 
 ## Summary
 
@@ -61,7 +61,7 @@ recording the deferral elsewhere.**
 | Wanted variant | Wanted by | Shipped instead | Status |
 |---|---|---|---|
 | "Executable name unusable" | [RFC 038](../done/038-fail-closed-constructor.md), `try_new()`, 2.6.0 | Reports through `ConfigError::Platform` with a message | Shipped with workaround |
-| "Insecure file permissions" | [RFC 041](./041-permission-policy-for-pre-existing-modes.md) slice 2 | Nothing — the condition is repaired silently and not reported | Deferred, unreported |
+| "Insecure file permissions" | [RFC 041](../done/041-permission-policy-for-pre-existing-modes.md), Alternatives — "Report the condition rather than repair it silently" | Nothing — since 2.8.0 the condition is repaired silently and never surfaced | Deferred, unreported |
 
 Both cases share a shape: a distinct failure the caller cannot distinguish
 programmatically, only by string-matching a message, which is not an API.

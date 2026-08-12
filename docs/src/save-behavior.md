@@ -38,7 +38,11 @@ content is never briefly readable by other local users while it is being
 written.
 
 * If the target file already exists, its mode is applied to the temporary
-  file before the replace step.
+  file before the replace step — with its group-write and other-write bits
+  refused. A target at `0666` or `0664` lands at `0644`; a target at `0644`
+  or `0640` is unaffected, since read access is never touched. This refusal
+  is silent: `save()` still just succeeds, with no indication the mode was
+  narrowed.
 * If no target file exists yet, the new file keeps the `0600` it was created
   with.
 * Applying the target's mode is best-effort and fail-secure: if reading or
@@ -49,7 +53,10 @@ written.
 * **Group-shared caveat.** A settings file under a shared `with_root_dir()`
   path is created owner-only on first save. This only bites once — running
   `chmod g+r` on the file after creation fixes it permanently, because every
-  later save preserves whatever mode the file already has.
+  later save preserves that read widening. **A group that needs to write the
+  file, not just read it, is a different case**: group-write does not survive
+  a save the way group-read does, so a deployment relying on group-writable
+  settings needs `SaveMode::Direct` or its own write path instead.
 
 This does not make the crate a secret store. Applications with real
 secret-handling requirements should use a platform keychain.

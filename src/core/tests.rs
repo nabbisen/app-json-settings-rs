@@ -456,6 +456,170 @@ fn atomic_save_preserves_existing_mode_0644() {
 
 #[cfg(unix)]
 #[test]
+fn atomic_save_narrows_world_writable_mode_0666_to_0644() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-narrow-0666");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o666))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o644, "mode was {mode:o}, expected narrowed to 0o644");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_narrows_group_and_other_writable_mode_0664_to_0644() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-narrow-0664");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o664))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o644, "mode was {mode:o}, expected narrowed to 0o644");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_narrows_owner_and_other_writable_mode_0620_to_0600() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-narrow-0620");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o620))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o600, "mode was {mode:o}, expected narrowed to 0o600");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_preserves_group_readable_mode_0640_unchanged() {
+    // The test that proves the mask refuses write bits and not read bits:
+    // 0640 contains group-read but no write bits in NON_PROPAGATED_MODE_BITS
+    // (0o022), so it must survive untouched. A mask of 0o077 or 0o066 would
+    // pass every other narrowing test here and still wrongly strip this.
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-preserve-0640");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o640))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o640, "mode was {mode:o}, expected preserved 0o640");
+}
+
+#[cfg(unix)]
+#[test]
+fn atomic_save_preserves_restrictive_mode_0400_unchanged() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let dir = temp_dir("mode-preserve-0400");
+    let manager = ConfigManager::<TestSettings>::new().with_root_dir(&dir);
+
+    manager
+        .save(&TestSettings {
+            volume: 1,
+            enabled: false,
+        })
+        .expect("initial save should succeed");
+    fs::set_permissions(manager.path(), fs::Permissions::from_mode(0o400))
+        .expect("mode should be settable");
+
+    manager
+        .save(&TestSettings {
+            volume: 2,
+            enabled: true,
+        })
+        .expect("second save should succeed");
+
+    let mode = fs::metadata(manager.path())
+        .expect("settings file metadata should be readable")
+        .permissions()
+        .mode()
+        & 0o777;
+    assert_eq!(mode, 0o400, "mode was {mode:o}, expected preserved 0o400");
+}
+
+#[cfg(unix)]
+#[test]
 fn atomic_save_creates_new_file_owner_only() {
     use std::os::unix::fs::PermissionsExt;
 

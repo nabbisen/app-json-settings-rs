@@ -7,7 +7,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::Result;
 
 #[cfg(unix)]
-use std::os::unix::fs::OpenOptionsExt;
+use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
 #[cfg(windows)]
 use std::os::windows::ffi::OsStrExt;
 
@@ -77,6 +77,18 @@ fn save_atomic(path: &Path, content: &str) -> Result<()> {
     Ok(())
 }
 
+/// Permission bits never propagated from a pre-existing settings file.
+///
+/// Group-write and other-write let another local account alter what the
+/// application reads back. Unlike a deliberate widening of *read* access
+/// (`0644`, `0640`), which RFC 029 preserves on purpose, these bits cannot
+/// represent a configuration decision anyone plausibly made: they are the
+/// residue of a bad umask, a careless `chmod`, or an archive extracted with
+/// permissive modes. Preserving them would make that state permanent, because
+/// `rename` would otherwise return the file to the temporary file's `0600`.
+#[cfg(unix)]
+const NON_PROPAGATED_MODE_BITS: u32 = 0o022;
+
 /// Applies the existing target file's permission bits to the temporary file,
 /// on Unix, before the temporary file replaces it.
 ///
@@ -87,17 +99,26 @@ fn save_atomic(path: &Path, content: &str) -> Result<()> {
 /// to fail here; that is not a save failure.
 ///
 /// That "never less restrictive" guarantee is about the *failure* path only.
-/// The success path is where loosening happens: a target at `0644` or `0666`
-/// has that mode copied onto the `0600` temporary file, so the saved result is
-/// looser than the crate would have created it, silently. This is intended —
-/// preserving a mode respects a user who set one deliberately, and the crate
-/// never tightens a mode it did not create — but it means owner-only cannot be
-/// inferred from the creation default for any file the crate did not create
-/// fresh. Documented for callers in `docs/src/operational-contract.md`.
+/// The success path is where loosening happens: a target at `0644` has that
+/// mode copied onto the `0600` temporary file, so the saved result is looser
+/// than the crate would have created it, silently. This is intended —
+/// preserving read-access widening respects a user who set one deliberately,
+/// and the crate never tightens a mode it did not create — but it means
+/// owner-only cannot be inferred from the creation default for any file the
+/// crate did not create fresh. Documented for callers in
+/// `docs/src/operational-contract.md`.
+///
+/// [`NON_PROPAGATED_MODE_BITS`] is masked off the copied mode first, so
+/// group-write and other-write are never carried forward regardless of what
+/// the target file had: a target at `0666` or `0664` is narrowed to `0644`
+/// on the temporary file, the same way `rename` would already have left it
+/// without this function at all. This does not apply to `0644` or `0640`,
+/// which contain no bits in the mask.
 #[cfg(unix)]
 fn apply_target_mode(temp_path: &Path, target_path: &Path) {
     if let Ok(metadata) = fs::metadata(target_path) {
-        let _ = fs::set_permissions(temp_path, metadata.permissions());
+        let mode = metadata.permissions().mode() & !NON_PROPAGATED_MODE_BITS;
+        let _ = fs::set_permissions(temp_path, fs::Permissions::from_mode(mode));
     }
 }
 

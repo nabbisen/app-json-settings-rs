@@ -137,27 +137,38 @@ the level to control, and the resulting `save()` failure surfaces as
 
 ## Preservation can leave the file looser than the crate would create it
 
-Mode preservation copies whatever is on the target, in both directions. New
-files are created owner-only at `0600`, but an existing file at `0644` — set
-by a user, or created by a version of this crate predating owner-only
-creation — keeps that mode through every subsequent save:
+Mode preservation copies the target's mode, but not wholesale. New files are
+created owner-only at `0600`. An existing file's *read* widening is
+preserved — `0644`, set by a user, or created by a version of this crate
+predating owner-only creation, keeps that mode through every subsequent
+save. Its group-write and other-write bits, if any, are not:
 
 ```
-loose target   (0644): target before = 644 -> after replacement = 644
-world-writable (0666): target before = 666 -> after replacement = 666
+loose target        (0644): target before = 644 -> after replacement = 644
+group/other-writable (0666): target before = 666 -> after replacement = 644
 ```
 
-The crate never tightens a mode it did not create. That is deliberate:
-preserving a mode respects a user who set one on purpose, and silently
-overriding it would be its own surprise. The tradeoff is the axis worth
-knowing about — *preserve* respects intent, *enforce* guarantees a floor, and
-this crate preserves.
+The crate never tightens a mode it did not create, for read access. That is
+deliberate: preserving a read-widened mode respects a user who set one on
+purpose, and silently overriding it would be its own surprise. Group-write
+and other-write are different: they let another local account alter what
+the application reads back, and unlike a widened read mode, they cannot
+represent a configuration decision anyone plausibly made — they are the
+residue of a bad umask, a careless `chmod`, or an archive extracted with
+permissive modes. The crate refuses to propagate them, so a file that
+picked up `0666` or `0664` from something else returns to `0644` on its
+next save rather than staying loose for the life of the file.
+
+This refusal is silent — repaired, not reported. The caller gets no
+indication that a target's mode was narrowed; `save()` still just succeeds.
 
 The practical consequence: **do not infer `0600` from the creation default.**
-If the settings file predates owner-only creation, or was loosened at any
-point, it stays loose for the life of the file. An application whose settings
-hold anything sensitive and that needs owner-only guaranteed should assert or
-set the mode itself rather than relying on the default it was created with.
+If the settings file predates owner-only creation, or had its *read* access
+widened at any point, it stays that way for the life of the file. An
+application whose settings hold anything sensitive and that needs
+owner-only guaranteed should assert or set the mode itself rather than
+relying on the default it was created with — the crate does not enforce
+one.
 
 ## Recovery pattern
 

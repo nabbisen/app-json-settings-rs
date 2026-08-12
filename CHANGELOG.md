@@ -36,15 +36,29 @@ Rename this heading to the version number when a release is cut.
   done; it is not a behavior change, and it matters because `chmod` on a
   settings file can be mistaken for a lock against modification.
 * `docs/src/operational-contract.md` documents that mode preservation copies
-  the target's mode in **both** directions, so it can leave the file looser
-  than the crate would create it: new files are created at `0600`, but an
-  existing file at `0644` or `0666` — set by a user, or created by a version
-  predating owner-only creation — keeps that mode through every subsequent
-  save. The crate never tightens a mode it did not create. Callers whose
-  settings are sensitive should not infer `0600` from the creation default.
-  The rustdoc on `apply_target_mode()` now records that its "never less
-  restrictive" note describes the failure path only, and that the success
-  path is where loosening occurs.
+  the target's *read*-access widening, so it can leave the file looser than
+  the crate would create it: new files are created at `0600`, but an
+  existing file at `0644` — set by a user, or created by a version predating
+  owner-only creation — keeps that mode through every subsequent save. The
+  crate never tightens a mode it did not create, for read access. Callers
+  whose settings are sensitive should not infer `0600` from the creation
+  default. The rustdoc on `apply_target_mode()` now records that its "never
+  less restrictive" note describes the failure path only, and that the
+  success path is where read-access loosening occurs.
+* **Atomic save no longer propagates group-write or other-write bits from a
+  pre-existing settings file.** A target at `0666` or `0664` is narrowed to
+  `0644` on its next save; a target at `0620` is narrowed to `0600`.
+  Read-access widening — `0644`, `0640` — is unaffected; this refines RFC
+  029's mode preservation rather than reversing it, and the existing
+  `0644`-preservation test is unmodified and still green. The refusal is
+  silent: `save()` still just succeeds, with no indication a mode was
+  narrowed, and the condition is not currently reported to the caller.
+  **A deployment relying on a group-writable settings file will see it
+  narrowed on its next save** and needs `SaveMode::Direct` or its own write
+  path instead — this narrowing was accepted knowingly by the project
+  owner as the cost of no longer perpetuating a settings file left
+  world-writable by something outside this crate's control (a bad umask, a
+  careless `chmod`, or an archive extracted with permissive modes).
 * `docs/src/api-guide.md` documents `folder_path()` as how to **obtain** the
   settings directory, with the one-line `folder_path().to_path_buf()` form,
   and states explicitly not to derive the directory as `path().parent()` —
@@ -61,8 +75,14 @@ Rename this heading to the version number when a release is cut.
 ### Compatibility
 
 * No API change, no signature change, no new `ConfigError` variant, no new
-  dependency, and no behavior change. Documentation and test additions only.
-* Patch release, not minor: nothing was added to the public API.
+  dependency.
+* **Behavior change on Unix**: atomic save no longer propagates group-write
+  or other-write bits from a pre-existing target file — see above. A
+  settings file relying on group-writability needs `SaveMode::Direct` or
+  its own write path after upgrading.
+* Minor release, not a patch: the permission-narrowing change above is a
+  real behavior change, even though every other item in this section is
+  documentation or test-only.
 
 ## 2.7.0
 

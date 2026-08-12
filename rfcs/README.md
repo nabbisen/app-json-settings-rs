@@ -7,6 +7,7 @@ This directory follows [RFC 000](./done/000-rfc-lifecycle-policy.md).
 | ID | Title | Priority |
 |---:|---|---|
 | 040 | [`uwp` feature disposition](./proposed/040-uwp-feature-disposition.md) | P2 |
+| 041 | [Permission policy for pre-existing loose modes](./proposed/041-permission-policy-for-pre-existing-modes.md) | P2 |
 
 ## Implemented
 
